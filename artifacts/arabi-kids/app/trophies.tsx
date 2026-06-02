@@ -10,6 +10,7 @@ import { TROPHIES } from '@/constants/trophies';
 import { STICKERS } from '@/constants/stickers';
 import type { Sticker } from '@/types';
 import type { Trophy } from '@/types';
+import { useResponsive } from '@/hooks/useResponsive';
 
 type Tab = 'trophies' | 'stickers';
 
@@ -55,6 +56,7 @@ export default function TrophiesScreen() {
   const [activeTab, setActiveTab] = useState<Tab>('trophies');
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPad = Platform.OS === 'web' ? 34 : insets.bottom;
+  const { hPad } = useResponsive();
 
   const earnedTrophies = activeProfile?.trophies ?? [];
   const earnedStickers = activeProfile?.stickers ?? [];
@@ -118,7 +120,7 @@ export default function TrophiesScreen() {
 
       {/* Trophies grid */}
       {activeTab === 'trophies' ? (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.trophyScroll, { paddingBottom: bottomPad + 20 }]}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.trophyScroll, { paddingBottom: bottomPad + 20, paddingHorizontal: hPad }]}>
           <View style={styles.trophyGrid}>
             {TROPHIES.map(trophy => (
               <TrophyItem key={trophy.id} trophy={trophy} earned={earnedTrophies.includes(trophy.id)} />
@@ -126,7 +128,7 @@ export default function TrophiesScreen() {
           </View>
         </ScrollView>
       ) : (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.stickerScroll, { paddingBottom: bottomPad + 20 }]}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.stickerScroll, { paddingBottom: bottomPad + 20, paddingHorizontal: hPad }]}>
           <View style={styles.stickerGrid}>
             {STICKERS.map(sticker => (
               <StickerItem key={sticker.id} sticker={sticker} earned={earnedStickers.includes(sticker.id)} />

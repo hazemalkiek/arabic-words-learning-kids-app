@@ -12,6 +12,7 @@ import { THEMES, Theme } from '@/types';
 import { WORDS } from '@/constants/words';
 import type { Word } from '@/types';
 import { THEME_IMAGES } from '@/constants/images';
+import { useResponsive } from '@/hooks/useResponsive';
 
 export default function ExploreCategoryScreen() {
   const { category } = useLocalSearchParams<{ category: string }>();
@@ -20,6 +21,8 @@ export default function ExploreCategoryScreen() {
   const { markWordSeen } = useApp();
   const [selectedWord, setSelectedWord] = useState<Word | null>(null);
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
+  const { hPad, numCols } = useResponsive();
+  const cols = numCols(3, 4, 5);
 
   const theme = THEMES.find(t => t.id === category);
   const words = WORDS.filter(w => w.theme === category);
@@ -59,8 +62,9 @@ export default function ExploreCategoryScreen() {
       <FlatList
         data={words}
         keyExtractor={(item) => item.id}
-        numColumns={3}
-        contentContainerStyle={styles.grid}
+        numColumns={cols}
+        key={cols.toString()}
+        contentContainerStyle={[styles.grid, { paddingHorizontal: hPad }]}
         showsVerticalScrollIndicator={false}
         columnWrapperStyle={{ gap: 10 }}
         renderItem={({ item: word }) => (

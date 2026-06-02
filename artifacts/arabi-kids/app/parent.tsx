@@ -11,6 +11,7 @@ import * as Haptics from 'expo-haptics';
 import { useApp } from '@/context/AppContext';
 import { AVATAR_ICONS, AVATAR_COLORS, THEMES, DIFFICULTIES } from '@/types';
 import { FeedbackModal } from '@/components/FeedbackModal';
+import { useResponsive } from '@/hooks/useResponsive';
 
 const PIN_KEY = '@arabi_kids_pin';
 const DEFAULT_PIN = '1234';
@@ -172,6 +173,7 @@ export default function ParentScreen() {
   const [showFeedback, setShowFeedback] = useState(false);
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPad = Platform.OS === 'web' ? 34 : insets.bottom;
+  const { hPad } = useResponsive();
 
   useEffect(() => {
     AsyncStorage.getItem(PIN_KEY).then(saved => { if (saved) setCorrectPin(saved); });
@@ -233,7 +235,7 @@ export default function ParentScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={[styles.dashScroll, { paddingBottom: bottomPad + 20 }]} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.dashScroll, { paddingBottom: bottomPad + 20, paddingHorizontal: hPad }]} showsVerticalScrollIndicator={false}>
         {profiles.length === 0 && <Text style={styles.noProfiles}>No child profiles yet.</Text>}
 
         {profiles.map((profile) => {

@@ -10,6 +10,7 @@ import { MascotCharacter } from '@/components/MascotCharacter';
 import { AVATAR_ICONS, AVATAR_COLORS } from '@/types';
 import { WORDS } from '@/constants/words';
 import { FeedbackModal } from '@/components/FeedbackModal';
+import { useResponsive } from '@/hooks/useResponsive';
 
 const MODE_CARDS = [
   { id: 'learn', label: 'Learn', arabicLabel: 'تعلَّم', icon: 'book-open-variant', color: '#FF6B35', bg: '#FFF0E8', desc: 'Discover new Arabic words' },
@@ -23,6 +24,7 @@ export default function HomeScreen() {
   const { activeProfile, setActiveProfileId, updateStreak } = useApp();
   const [showStreakRecovery, setShowStreakRecovery] = React.useState(false);
   const [showFeedback, setShowFeedback] = React.useState(false);
+  const { hPad } = useResponsive();
 
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPad = Platform.OS === 'web' ? 34 : insets.bottom;
@@ -61,7 +63,7 @@ export default function HomeScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: topPad }]}>
-      <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: bottomPad + 20 }]} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: bottomPad + 20, paddingHorizontal: hPad }]} showsVerticalScrollIndicator={false}>
 
         {/* Header Bar */}
         <View style={styles.headerBar}>

@@ -6,11 +6,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { THEMES } from '@/types';
 import { WORDS } from '@/constants/words';
+import { useResponsive } from '@/hooks/useResponsive';
 
 export default function ExploreIndexScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
+  const { hPad, numCols } = useResponsive();
+  const cols = numCols(2, 3, 4);
 
   return (
     <View style={[styles.container, { paddingTop: topPad }]}>
@@ -27,8 +30,9 @@ export default function ExploreIndexScreen() {
       <FlatList
         data={THEMES}
         keyExtractor={(item) => item.id}
-        numColumns={2}
-        contentContainerStyle={styles.grid}
+        numColumns={cols}
+        key={cols.toString()}
+        contentContainerStyle={[styles.grid, { paddingHorizontal: hPad }]}
         showsVerticalScrollIndicator={false}
         columnWrapperStyle={{ gap: 14 }}
         renderItem={({ item: theme }) => {

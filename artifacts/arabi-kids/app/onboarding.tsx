@@ -10,6 +10,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MascotCharacter } from '@/components/MascotCharacter';
+import { useResponsive } from '@/hooks/useResponsive';
 
 const ONBOARDED_KEY = '@arabi_onboarded';
 
@@ -25,6 +26,7 @@ export async function hasOnboarded(): Promise<boolean> {
 export default function OnboardingScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { contentMaxWidth } = useResponsive();
 
   const mascotY = useSharedValue(120);
   const mascotOpacity = useSharedValue(0);
@@ -97,7 +99,7 @@ export default function OnboardingScreen() {
       <View style={styles.bgCircle1} />
       <View style={styles.bgCircle2} />
 
-      <View style={styles.content}>
+      <View style={[styles.content, { maxWidth: contentMaxWidth }]}>
         {/* Mascot */}
         <Animated.View style={[styles.mascotWrap, mascotStyle]}>
           <MascotCharacter size={160} mood="celebrate" streakCount={5} />

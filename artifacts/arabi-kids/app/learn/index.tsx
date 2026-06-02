@@ -7,12 +7,14 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '@/context/AppContext';
 import { THEMES, DIFFICULTIES } from '@/types';
+import { useResponsive } from '@/hooks/useResponsive';
 
 export default function LearnIndexScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { activeProfile } = useApp();
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
+  const { hPad } = useResponsive();
 
   return (
     <View style={[styles.container, { paddingTop: topPad }]}>
@@ -25,7 +27,7 @@ export default function LearnIndexScreen() {
         <View style={{ width: 44 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.scroll, { paddingHorizontal: hPad }]} showsVerticalScrollIndicator={false}>
         <Text style={styles.subtitle}>Choose a theme and level</Text>
 
         {THEMES.map((theme) => (

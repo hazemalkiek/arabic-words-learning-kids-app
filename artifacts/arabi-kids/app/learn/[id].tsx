@@ -16,6 +16,7 @@ import { STICKERS } from '@/constants/stickers';
 import { Difficulty, Theme } from '@/types';
 import { THEME_IMAGES } from '@/constants/images';
 import { playLevelComplete, playUnlock } from '@/utils/soundEffects';
+import { useResponsive } from '@/hooks/useResponsive';
 
 function StarDisplay({ stars }: { stars: number }) {
   return (
@@ -33,6 +34,7 @@ export default function LearnGameScreen() {
   const insets = useSafeAreaInsets();
   const { markWordSeen, completeLevel, addTimeSpent } = useApp();
   const sessionStartRef = React.useRef(Date.now());
+  const { isTablet, contentMaxWidth } = useResponsive();
 
   const parts = (id ?? '').split('-');
   const difficulty = parts[parts.length - 1] as Difficulty;
@@ -134,7 +136,7 @@ export default function LearnGameScreen() {
 
   if (words.length === 0) {
     return (
-      <View style={[styles.container, { paddingTop: topPad, alignItems: 'center', justifyContent: 'center' }]}>
+      <View style={[styles.container, { paddingTop: topPad, alignItems: 'center', justifyContent: 'center' }, isTablet && { alignSelf: 'center', width: '100%', maxWidth: contentMaxWidth }]}>
         <Text style={styles.errorText}>No words found</Text>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Text style={styles.nextLabel}>Go Back</Text>
@@ -145,7 +147,7 @@ export default function LearnGameScreen() {
 
   if (isCompleted) {
     return (
-      <View style={[styles.container, { paddingTop: topPad }]}>
+      <View style={[styles.container, { paddingTop: topPad }, isTablet && { alignSelf: 'center', width: '100%', maxWidth: contentMaxWidth }]}>
         <ConfettiEffect active={showConfetti} />
         <View style={styles.completedContainer}>
           <MaterialCommunityIcons name="trophy" size={80} color="#FFD700" />
@@ -200,7 +202,7 @@ export default function LearnGameScreen() {
   const currentWord = words[currentIndex];
 
   return (
-    <View style={[styles.container, { paddingTop: topPad }]}>
+    <View style={[styles.container, { paddingTop: topPad }, isTablet && { alignSelf: 'center', width: '100%', maxWidth: contentMaxWidth }]}>
       {/* Top bar */}
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => { Speech.stop(); router.back(); }} style={styles.closeBtn}>

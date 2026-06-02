@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useApp } from '@/context/AppContext';
 import { MascotCharacter } from '@/components/MascotCharacter';
 import { AVATAR_ICONS, AVATAR_COLORS, Profile } from '@/types';
+import { useResponsive } from '@/hooks/useResponsive';
 
 function ProfileCard({ profile, onSelect, onLongPress }: {
   profile: Profile;
@@ -127,6 +128,7 @@ export default function ProfileSelectionScreen() {
   const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPad = Platform.OS === 'web' ? 34 : insets.bottom;
+  const { hPad } = useResponsive();
 
   // On first launch (no onboarding seen) redirect to the animated splash
   useEffect(() => {
@@ -186,7 +188,7 @@ export default function ProfileSelectionScreen() {
         </View>
 
         {/* Profiles Grid */}
-        <View style={styles.grid}>
+        <View style={[styles.grid, { paddingHorizontal: hPad }]}>
           {profiles.map((profile) => (
             <ProfileCard
               key={profile.id}

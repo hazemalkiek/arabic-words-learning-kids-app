@@ -11,6 +11,7 @@ import { useApp } from '@/context/AppContext';
 import { MascotCharacter } from '@/components/MascotCharacter';
 import { AnimatedButton } from '@/components/AnimatedButton';
 import { AVATAR_ICONS, AVATAR_COLORS } from '@/types';
+import { useResponsive } from '@/hooks/useResponsive';
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function WelcomeScreen() {
   const [name, setName] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState(0);
   const [mascotMood, setMascotMood] = useState<'idle' | 'happy'>('idle');
+  const { isTablet, contentMaxWidth } = useResponsive();
 
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPad = Platform.OS === 'web' ? 34 : insets.bottom;
@@ -37,7 +39,7 @@ export default function WelcomeScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: topPad, paddingBottom: bottomPad }]}>
+    <View style={[styles.container, { paddingTop: topPad, paddingBottom: bottomPad }, isTablet && { alignSelf: 'center', width: '100%', maxWidth: contentMaxWidth }]}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         {/* Back button */}
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>

@@ -16,6 +16,7 @@ import { STICKERS } from '@/constants/stickers';
 import { Difficulty, Theme, Word } from '@/types';
 import { THEME_IMAGES } from '@/constants/images';
 import { playCorrect, playWrong, playLevelComplete, playUnlock } from '@/utils/soundEffects';
+import { useResponsive } from '@/hooks/useResponsive';
 
 function OptionButton({ word, onPress, state }: { word: Word; onPress: () => void; state: 'idle' | 'correct' | 'wrong' | 'reveal' }) {
   const scale = useSharedValue(1);
@@ -79,6 +80,7 @@ export default function TestGameScreen() {
   const { recordTestResult, completeLevel, addTimeSpent } = useApp();
   const sessionStartRef = React.useRef(Date.now());
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
+  const { isTablet, contentMaxWidth } = useResponsive();
 
   const parts = (id ?? '').split('-');
   const difficulty = parts[parts.length - 1] as Difficulty;
@@ -188,7 +190,7 @@ export default function TestGameScreen() {
 
   if (words.length === 0) {
     return (
-      <View style={[styles.container, { paddingTop: topPad, alignItems: 'center', justifyContent: 'center' }]}>
+      <View style={[styles.container, { paddingTop: topPad, alignItems: 'center', justifyContent: 'center' }, isTablet && { alignSelf: 'center', width: '100%', maxWidth: contentMaxWidth }]}>
         <Text style={styles.errorText}>Complete the Learn level first!</Text>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtnFull}>
           <Text style={styles.backBtnText}>Go Back</Text>
@@ -202,7 +204,7 @@ export default function TestGameScreen() {
     const stars = pct >= 1 ? 3 : pct >= 0.6 ? 2 : pct > 0 ? 1 : 0;
     const msgs = ['Keep practicing!', 'Good effort!', 'Great job!', 'PERFECT!'];
     return (
-      <View style={[styles.container, { paddingTop: topPad }]}>
+      <View style={[styles.container, { paddingTop: topPad }, isTablet && { alignSelf: 'center', width: '100%', maxWidth: contentMaxWidth }]}>
         <ConfettiEffect active={showConfetti} />
         <View style={styles.resultsContainer}>
           <MaterialCommunityIcons name={stars === 3 ? 'crown' : 'clipboard-check'} size={72} color={stars === 3 ? '#FFD700' : '#9B5DE5'} />
@@ -261,7 +263,7 @@ export default function TestGameScreen() {
   const currentWord = words[currentIndex];
 
   return (
-    <View style={[styles.container, { paddingTop: topPad }]}>
+    <View style={[styles.container, { paddingTop: topPad }, isTablet && { alignSelf: 'center', width: '100%', maxWidth: contentMaxWidth }]}>
       <ConfettiEffect active={showConfetti} />
       {/* Top bar */}
       <View style={styles.topBar}>

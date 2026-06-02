@@ -6,6 +6,7 @@ import {
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
+import { useResponsive } from '@/hooks/useResponsive';
 
 const FEEDBACK_KEY = '@arabi_kids_feedback';
 
@@ -14,6 +15,7 @@ export function FeedbackModal({ visible, onClose }: { visible: boolean; onClose:
   const [hovered, setHovered] = useState(0);
   const [text, setText] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const { isTablet, contentMaxWidth } = useResponsive();
 
   const reset = () => { setRating(0); setHovered(0); setText(''); setSubmitted(false); };
   const handleClose = () => { reset(); onClose(); };
@@ -34,15 +36,19 @@ export function FeedbackModal({ visible, onClose }: { visible: boolean; onClose:
 
   const displayRating = hovered || rating;
 
+  const sheetStyle = isTablet
+    ? [fb.sheet, { borderRadius: 32, width: Math.min(contentMaxWidth, 540), alignSelf: 'center' as const, marginBottom: 0 }]
+    : fb.sheet;
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+    <Modal visible={visible} transparent animationType={isTablet ? 'fade' : 'slide'} onRequestClose={handleClose}>
       <KeyboardAvoidingView
-        style={fb.overlay}
+        style={[fb.overlay, isTablet && { justifyContent: 'center' }]}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <TouchableOpacity style={fb.backdrop} activeOpacity={1} onPress={handleClose} />
 
-        <View style={fb.sheet}>
+        <View style={sheetStyle}>
           <TouchableOpacity onPress={handleClose} style={fb.closeBtn}>
             <MaterialCommunityIcons name="close" size={22} color="#8A7E74" />
           </TouchableOpacity>

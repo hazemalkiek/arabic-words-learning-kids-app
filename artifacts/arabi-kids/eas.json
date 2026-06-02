@@ -4,11 +4,13 @@
   },
   "build": {
     "preview": {
+      "buildRootDirectory": "../..",
       "android": {
         "buildType": "apk"
       }
     },
     "production": {
+      "buildRootDirectory": "../..",
       "android": {
         "buildType": "app-bundle"
       },

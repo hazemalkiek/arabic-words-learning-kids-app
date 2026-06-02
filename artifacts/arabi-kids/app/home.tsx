@@ -20,11 +20,24 @@ export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { activeProfile, setActiveProfileId, updateStreak } = useApp();
+  const [showStreakRecovery, setShowStreakRecovery] = React.useState(false);
 
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPad = Platform.OS === 'web' ? 34 : insets.bottom;
 
   useEffect(() => {
+    if (activeProfile) {
+      const today = new Date().toISOString().split('T')[0];
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split('T')[0];
+      // Streak was broken if lastActiveDate is before yesterday AND they had a streak
+      const streakBroken =
+        activeProfile.lastActiveDate !== today &&
+        activeProfile.lastActiveDate !== yesterdayStr &&
+        activeProfile.streakCount > 0;
+      if (streakBroken) setShowStreakRecovery(true);
+    }
     updateStreak();
   }, []);
 
@@ -87,6 +100,20 @@ export default function HomeScreen() {
             <Text style={styles.statLabel}>Trophies</Text>
           </View>
         </View>
+
+        {/* Streak recovery banner */}
+        {showStreakRecovery && (
+          <View style={styles.streakRecoveryBanner}>
+            <Text style={styles.streakRecoveryEmoji}>🔥</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.streakRecoveryTitle}>Welcome back!</Text>
+              <Text style={styles.streakRecoveryText}>Your streak was broken — let's start a new one today!</Text>
+            </View>
+            <TouchableOpacity onPress={() => setShowStreakRecovery(false)}>
+              <MaterialCommunityIcons name="close" size={18} color="#FF6B35" />
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Mode Cards */}
         <Text style={styles.sectionTitle}>Choose your game</Text>
@@ -157,4 +184,8 @@ const styles = StyleSheet.create({
   trophyBadgeText: { fontFamily: 'Nunito_800ExtraBold', fontSize: 14, color: '#1A1A2E' },
   parentBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 20, paddingVertical: 12 },
   parentBtnText: { fontFamily: 'Nunito_600SemiBold', fontSize: 15, color: '#8A7E74' },
+  streakRecoveryBanner: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFF0E8', borderRadius: 20, padding: 16, marginBottom: 20, borderLeftWidth: 4, borderLeftColor: '#FF6B35' },
+  streakRecoveryEmoji: { fontSize: 28 },
+  streakRecoveryTitle: { fontFamily: 'Nunito_700Bold', fontSize: 16, color: '#FF6B35' },
+  streakRecoveryText: { fontFamily: 'Nunito_400Regular', fontSize: 13, color: '#8A7E74', marginTop: 2 },
 });

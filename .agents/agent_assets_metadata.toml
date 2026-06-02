@@ -18,3 +18,39 @@ id = "FgTlxlPcrsGVy2yDnoRRF"
 uri = "file://artifacts/arabi-kids/assets/images/food_thumb.png"
 type = "image"
 title = "food theme thumbnail"
+
+[[generated]]
+id = "xS0jkC0TC643FNvt-49qH"
+uri = "file://artifacts/arabi-kids/assets/images/theme_colors.png"
+type = "image"
+title = "colors theme"
+
+[[generated]]
+id = "gwB1dNoKu2Cm9yFhyFudB"
+uri = "file://artifacts/arabi-kids/assets/images/theme_numbers.png"
+type = "image"
+title = "numbers theme"
+
+[[generated]]
+id = "RZfg8vrkoNK078tOWLCyl"
+uri = "file://artifacts/arabi-kids/assets/images/theme_home.png"
+type = "image"
+title = "home theme"
+
+[[generated]]
+id = "y_ThnbgIIumB5M_SHtWQ5"
+uri = "file://artifacts/arabi-kids/assets/images/theme_body.png"
+type = "image"
+title = "body theme"
+
+[[generated]]
+id = "S0WCwA55x6oeUkZnVNOz_"
+uri = "file://artifacts/arabi-kids/assets/images/theme_nature.png"
+type = "image"
+title = "nature theme"
+
+[[generated]]
+id = "VRLcyRzfAQ4ZG3yEfMcBg"
+uri = "file://artifacts/arabi-kids/assets/images/theme_clothes.png"
+type = "image"
+title = "clothes theme"

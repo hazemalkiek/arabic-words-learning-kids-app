@@ -1,6 +1,6 @@
 import { Word } from '@/types';
 
-export const WORDS: Word[] = [
+const RAW_WORDS: Omit<Word, 'imagePath'>[] = [
   // ─── ANIMALS ───────────────────────────────────────────────────────────────
   // Beginner
   { id: 'an-cat', english: 'Cat', arabic: 'قطة', transliteration: 'qitta', theme: 'animals', difficulty: 'beginner', icon: 'cat', color: '#FF8B42' },
@@ -161,6 +161,11 @@ export const WORDS: Word[] = [
   { id: 'cl-gloves', english: 'Gloves', arabic: 'قفازات', transliteration: 'quffazat', theme: 'clothes', difficulty: 'advanced', icon: 'ski', color: '#E84848' },
   { id: 'cl-boots', english: 'Boots', arabic: 'جزمة', transliteration: 'jazma', theme: 'clothes', difficulty: 'advanced', icon: 'shoe-heel', color: '#5D4037' },
 ];
+
+export const WORDS: Word[] = RAW_WORDS.map(w => ({
+  ...w,
+  imagePath: `./assets/images/theme_${w.theme}.png`,
+}));
 
 export function getWordsByLevel(theme: string, difficulty: string): Word[] {
   return WORDS.filter(w => w.theme === theme && w.difficulty === difficulty);

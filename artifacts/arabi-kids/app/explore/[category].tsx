@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, FlatList, Platform, Modal,
+  View, Text, StyleSheet, TouchableOpacity, FlatList, Platform, Modal, Image,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -11,6 +11,7 @@ import { useApp } from '@/context/AppContext';
 import { THEMES, Theme } from '@/types';
 import { WORDS } from '@/constants/words';
 import type { Word } from '@/types';
+import { THEME_IMAGES } from '@/constants/images';
 
 export default function ExploreCategoryScreen() {
   const { category } = useLocalSearchParams<{ category: string }>();
@@ -64,10 +65,15 @@ export default function ExploreCategoryScreen() {
         columnWrapperStyle={{ gap: 10 }}
         renderItem={({ item: word }) => (
           <TouchableOpacity style={styles.wordCard} onPress={() => handleWordPress(word)} activeOpacity={0.85}>
-            {word.id.startsWith('co-') ? (
+            {word.theme === 'colors' ? (
               <View style={[styles.colorCircle, { backgroundColor: word.color }]} />
             ) : (
-              <MaterialCommunityIcons name={word.icon as any} size={40} color={word.color} />
+              <View style={styles.cardImgWrap}>
+                <Image source={THEME_IMAGES[word.theme]} style={styles.cardImg} resizeMode="contain" />
+                <View style={styles.cardIconBadge}>
+                  <MaterialCommunityIcons name={word.icon as any} size={13} color={word.color} />
+                </View>
+              </View>
             )}
             <Text style={styles.wordEnglish}>{word.english}</Text>
             <Text style={[styles.wordArabic, { color: word.color }]}>{word.arabic}</Text>
@@ -80,11 +86,16 @@ export default function ExploreCategoryScreen() {
         <TouchableOpacity style={styles.modalOverlay} onPress={handleClose} activeOpacity={1}>
           <View style={styles.modalCard}>
             <View style={[styles.modalIconCircle, { backgroundColor: (selectedWord?.color ?? '#FF6B35') + '22' }]}>
-              {selectedWord?.id.startsWith('co-') ? (
+              {selectedWord?.theme === 'colors' ? (
                 <View style={[styles.colorCircleLg, { backgroundColor: selectedWord?.color }]} />
-              ) : (
-                <MaterialCommunityIcons name={(selectedWord?.icon ?? 'star') as any} size={80} color={selectedWord?.color} />
-              )}
+              ) : selectedWord ? (
+                <>
+                  <Image source={THEME_IMAGES[selectedWord.theme]} style={styles.modalImg} resizeMode="contain" />
+                  <View style={styles.modalIconBadge}>
+                    <MaterialCommunityIcons name={(selectedWord.icon ?? 'star') as any} size={22} color={selectedWord.color} />
+                  </View>
+                </>
+              ) : null}
             </View>
             <Text style={styles.modalEnglish}>{selectedWord?.english}</Text>
             <Text style={[styles.modalArabic, { color: selectedWord?.color }]}>{selectedWord?.arabic}</Text>
@@ -120,12 +131,17 @@ const styles = StyleSheet.create({
   grid: { padding: 12, gap: 10, paddingBottom: 40 },
   wordCard: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: 18, padding: 12, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 6, elevation: 2, minHeight: 110 },
   colorCircle: { width: 40, height: 40, borderRadius: 20 },
+  cardImgWrap: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  cardImg: { width: 40, height: 40, borderRadius: 8 },
+  cardIconBadge: { position: 'absolute', bottom: -2, right: -2, backgroundColor: '#FFF', borderRadius: 8, padding: 2 },
   wordEnglish: { fontFamily: 'Nunito_600SemiBold', fontSize: 12, color: '#1A1A2E', marginTop: 6, textAlign: 'center' },
   wordArabic: { fontFamily: 'Nunito_700Bold', fontSize: 16, marginTop: 2, textAlign: 'center', writingDirection: 'rtl' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', alignItems: 'center', justifyContent: 'center' },
   modalCard: { backgroundColor: '#FFFFFF', borderRadius: 32, padding: 32, alignItems: 'center', width: '80%', shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.2, shadowRadius: 20, elevation: 12 },
   modalIconCircle: { width: 140, height: 140, borderRadius: 70, alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
   colorCircleLg: { width: 80, height: 80, borderRadius: 40 },
+  modalImg: { width: 110, height: 110, borderRadius: 12 },
+  modalIconBadge: { position: 'absolute', bottom: 6, right: 6, backgroundColor: '#FFF', borderRadius: 16, padding: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.12, shadowRadius: 4, elevation: 3 },
   modalEnglish: { fontFamily: 'Nunito_700Bold', fontSize: 24, color: '#1A1A2E', textAlign: 'center' },
   modalArabic: { fontFamily: 'Nunito_800ExtraBold', fontSize: 40, textAlign: 'center', writingDirection: 'rtl', marginTop: 8 },
   modalTranslit: { fontFamily: 'Nunito_400Regular', fontSize: 16, color: '#8A7E74', fontStyle: 'italic', marginTop: 4 },

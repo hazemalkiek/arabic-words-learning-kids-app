@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, Platform,
+  View, Text, StyleSheet, TouchableOpacity, Platform, Image,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -14,6 +14,8 @@ import { getWordsByLevel, getRandomWrongAnswers } from '@/constants/words';
 import { TROPHIES } from '@/constants/trophies';
 import { STICKERS } from '@/constants/stickers';
 import { Difficulty, Theme, Word } from '@/types';
+import { THEME_IMAGES } from '@/constants/images';
+import { playCorrect, playWrong, playLevelComplete, playUnlock } from '@/utils/soundEffects';
 
 function OptionButton({ word, onPress, state }: { word: Word; onPress: () => void; state: 'idle' | 'correct' | 'wrong' | 'reveal' }) {
   const scale = useSharedValue(1);
@@ -114,6 +116,7 @@ export default function TestGameScreen() {
     const currentWord = words[currentIndex];
     const isCorrect = word.id === currentWord.id;
     setAnswered(true);
+    if (isCorrect) playCorrect(); else playWrong();
     Haptics.impactAsync(isCorrect ? Haptics.ImpactFeedbackStyle.Heavy : Haptics.ImpactFeedbackStyle.Medium);
     const newStates: Record<string, 'idle' | 'correct' | 'wrong' | 'reveal'> = {};
     options.forEach(o => {
@@ -150,6 +153,11 @@ export default function TestGameScreen() {
     setIsCompleted(true);
     if (stars === 3) setShowConfetti(true);
     Haptics.notificationAsync(stars >= 2 ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Warning);
+    if (rewards.trophies.length > 0 || rewards.stickers.length > 0) {
+      playUnlock();
+    } else if (stars > 0) {
+      playLevelComplete();
+    }
   }
 
   const progressStyle = useAnimatedStyle(() => ({ width: `${progressAnim.value * 100}%` }));
@@ -251,10 +259,19 @@ export default function TestGameScreen() {
       {/* Word Display */}
       <View style={styles.wordDisplay}>
         <View style={[styles.wordIconCircle, { backgroundColor: currentWord.color + '20' }]}>
-          {currentWord.id.startsWith('co-') ? (
+          {currentWord.theme === 'colors' ? (
             <View style={[styles.colorCircle, { backgroundColor: currentWord.color }]} />
           ) : (
-            <MaterialCommunityIcons name={currentWord.icon as any} size={80} color={currentWord.color} />
+            <>
+              <Image
+                source={THEME_IMAGES[currentWord.theme]}
+                style={styles.themeImage}
+                resizeMode="contain"
+              />
+              <View style={styles.iconBadge}>
+                <MaterialCommunityIcons name={currentWord.icon as any} size={20} color={currentWord.color} />
+              </View>
+            </>
           )}
         </View>
         <Text style={styles.wordEnglish}>{currentWord.english}</Text>
@@ -297,6 +314,8 @@ const styles = StyleSheet.create({
   wordDisplay: { alignItems: 'center', paddingHorizontal: 20, paddingBottom: 16 },
   wordIconCircle: { width: 140, height: 140, borderRadius: 70, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
   colorCircle: { width: 80, height: 80, borderRadius: 40 },
+  themeImage: { width: 110, height: 110, borderRadius: 12 },
+  iconBadge: { position: 'absolute', bottom: 6, right: 6, backgroundColor: '#FFF', borderRadius: 14, padding: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.12, shadowRadius: 4, elevation: 3 },
   wordEnglish: { fontFamily: 'Nunito_800ExtraBold', fontSize: 30, color: '#1A1A2E', textAlign: 'center' },
   hearRow: { flexDirection: 'row', marginTop: 8, marginBottom: 8 },
   hearBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#F3ECFF', borderRadius: 14, paddingVertical: 8, paddingHorizontal: 16 },

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, Platform,
+  View, Text, StyleSheet, TouchableOpacity, Platform, Image,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -14,6 +14,8 @@ import { getWordsByLevel } from '@/constants/words';
 import { TROPHIES } from '@/constants/trophies';
 import { STICKERS } from '@/constants/stickers';
 import { Difficulty, Theme } from '@/types';
+import { THEME_IMAGES } from '@/constants/images';
+import { playLevelComplete, playUnlock } from '@/utils/soundEffects';
 
 function StarDisplay({ stars }: { stars: number }) {
   return (
@@ -87,6 +89,11 @@ export default function LearnGameScreen() {
         setIsCompleted(true);
         setShowConfetti(true);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        if (rewards.trophies.length > 0 || rewards.stickers.length > 0) {
+          playUnlock();
+        } else {
+          playLevelComplete();
+        }
       } else {
         setCurrentIndex(nextIndex);
         showWord(nextIndex);
@@ -192,12 +199,21 @@ export default function LearnGameScreen() {
       {/* Word Card */}
       <View style={styles.cardContainer}>
         <Animated.View style={[styles.wordCard, cardStyle]}>
-          {/* Icon */}
+          {/* Illustration */}
           <View style={[styles.iconCircle, { backgroundColor: currentWord.color + '22' }]}>
-            {currentWord.id.startsWith('co-') ? (
+            {currentWord.theme === 'colors' ? (
               <View style={[styles.colorCircle, { backgroundColor: currentWord.color }]} />
             ) : (
-              <MaterialCommunityIcons name={currentWord.icon as any} size={90} color={currentWord.color} />
+              <>
+                <Image
+                  source={THEME_IMAGES[currentWord.theme]}
+                  style={styles.themeImage}
+                  resizeMode="contain"
+                />
+                <View style={styles.iconBadge}>
+                  <MaterialCommunityIcons name={currentWord.icon as any} size={22} color={currentWord.color} />
+                </View>
+              </>
             )}
           </View>
 
@@ -241,6 +257,8 @@ const styles = StyleSheet.create({
   wordCard: { backgroundColor: '#FFFFFF', borderRadius: 32, padding: 32, width: '100%', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.1, shadowRadius: 20, elevation: 8 },
   iconCircle: { width: 160, height: 160, borderRadius: 80, alignItems: 'center', justifyContent: 'center', marginBottom: 20 },
   colorCircle: { width: 90, height: 90, borderRadius: 45 },
+  themeImage: { width: 120, height: 120, borderRadius: 12 },
+  iconBadge: { position: 'absolute', bottom: 8, right: 8, backgroundColor: '#FFF', borderRadius: 16, padding: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.12, shadowRadius: 4, elevation: 3 },
   englishWord: { fontFamily: 'Nunito_700Bold', fontSize: 28, color: '#1A1A2E', textAlign: 'center' },
   divider: { width: 60, height: 2, backgroundColor: '#F0E8DC', borderRadius: 1, marginVertical: 16 },
   arabicWord: { fontFamily: 'Nunito_800ExtraBold', fontSize: 42, color: '#FF6B35', textAlign: 'center', writingDirection: 'rtl' },

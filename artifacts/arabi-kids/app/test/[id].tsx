@@ -48,8 +48,11 @@ function OptionButton({ word, onPress, state }: { word: Word; onPress: () => voi
     Speech.speak(word.arabic, { language: 'ar-SA', rate: 0.6, pitch: 1.0 });
   };
 
+  const speakerBg = state === 'correct' ? '#5BB566' : state === 'wrong' ? '#E55555' : state === 'reveal' ? '#E6C000' : '#F3ECFF';
+  const speakerColor = state !== 'idle' ? '#FFFFFF' : '#9B5DE5';
+
   return (
-    <Animated.View style={[animStyle, { position: 'relative' }]}>
+    <Animated.View style={[animStyle, styles.optionRow]}>
       <TouchableOpacity
         onPress={onPress}
         disabled={state !== 'idle'}
@@ -58,16 +61,12 @@ function OptionButton({ word, onPress, state }: { word: Word; onPress: () => voi
       >
         <Text style={[styles.optionArabic, { color: state !== 'idle' ? '#FFFFFF' : '#FF6B35' }]}>{word.arabic}</Text>
         <Text style={[styles.optionTranslit, { color: state !== 'idle' ? 'rgba(255,255,255,0.8)' : '#8A7E74' }]}>{word.transliteration}</Text>
-        {state === 'correct' && <MaterialCommunityIcons name="check-circle" size={24} color="#FFFFFF" style={styles.optionIcon} />}
-        {state === 'wrong' && <MaterialCommunityIcons name="close-circle" size={24} color="#FFFFFF" style={styles.optionIcon} />}
-        {state === 'reveal' && <MaterialCommunityIcons name="star" size={24} color="#FFFFFF" style={styles.optionIcon} />}
+        {state === 'correct' && <MaterialCommunityIcons name="check-circle" size={22} color="#FFFFFF" style={styles.optionIcon} />}
+        {state === 'wrong' && <MaterialCommunityIcons name="close-circle" size={22} color="#FFFFFF" style={styles.optionIcon} />}
+        {state === 'reveal' && <MaterialCommunityIcons name="star" size={22} color="#FFFFFF" style={styles.optionIcon} />}
       </TouchableOpacity>
-      <TouchableOpacity style={styles.optionSpeakerBtn} onPress={speakOption}>
-        <MaterialCommunityIcons
-          name="volume-high"
-          size={15}
-          color={state !== 'idle' ? 'rgba(255,255,255,0.9)' : '#9B5DE5'}
-        />
+      <TouchableOpacity style={[styles.optionSpeakerBtn, { backgroundColor: speakerBg }]} onPress={speakOption}>
+        <MaterialCommunityIcons name="volume-high" size={22} color={speakerColor} />
       </TouchableOpacity>
     </Animated.View>
   );
@@ -356,7 +355,6 @@ const styles = StyleSheet.create({
   wordDisplay: { alignItems: 'center', paddingHorizontal: 20, paddingBottom: 16 },
   wordPhoto: { width: 140, height: 140, borderRadius: 20, marginBottom: 12 },
   wordIconCircle: { width: 140, height: 140, borderRadius: 70, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
-  optionSpeakerBtn: { position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', zIndex: 10 },
   colorCircle: { width: 80, height: 80, borderRadius: 40 },
   themeImage: { width: 110, height: 110, borderRadius: 12 },
   iconBadge: { position: 'absolute', bottom: 6, right: 6, backgroundColor: '#FFF', borderRadius: 14, padding: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.12, shadowRadius: 4, elevation: 3 },
@@ -365,11 +363,13 @@ const styles = StyleSheet.create({
   hearBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#F3ECFF', borderRadius: 14, paddingVertical: 8, paddingHorizontal: 16 },
   hearLabel: { fontFamily: 'Nunito_600SemiBold', fontSize: 14, color: '#9B5DE5' },
   questionLabel: { fontFamily: 'Nunito_600SemiBold', fontSize: 15, color: '#8A7E74' },
-  optionsGrid: { paddingHorizontal: 16, gap: 10, flex: 1 },
-  optionBtn: { borderRadius: 20, padding: 16, borderWidth: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  optionArabic: { fontFamily: 'Nunito_800ExtraBold', fontSize: 26, writingDirection: 'rtl', textAlign: 'center', flex: 1 },
-  optionTranslit: { fontFamily: 'Nunito_400Regular', fontSize: 14, fontStyle: 'italic', minWidth: 70, textAlign: 'center' },
-  optionIcon: { marginLeft: 8 },
+  optionsGrid: { paddingHorizontal: 12, gap: 10, flex: 1 },
+  optionRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  optionBtn: { flex: 1, borderRadius: 20, padding: 14, borderWidth: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
+  optionArabic: { fontFamily: 'Nunito_800ExtraBold', fontSize: 24, writingDirection: 'rtl', textAlign: 'center', flex: 1 },
+  optionTranslit: { fontFamily: 'Nunito_400Regular', fontSize: 13, fontStyle: 'italic', minWidth: 60, textAlign: 'center' },
+  optionIcon: { marginLeft: 6 },
+  optionSpeakerBtn: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.10, shadowRadius: 4, elevation: 3 },
   resultsContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 },
   resultsTitle: { fontFamily: 'Nunito_800ExtraBold', fontSize: 32, color: '#1A1A2E', marginTop: 16 },
   scoreText: { fontFamily: 'Nunito_700Bold', fontSize: 20, color: '#9B5DE5', marginTop: 8 },

@@ -67,6 +67,8 @@ export default function ExploreCategoryScreen() {
           <TouchableOpacity style={styles.wordCard} onPress={() => handleWordPress(word)} activeOpacity={0.85}>
             {word.theme === 'colors' ? (
               <View style={[styles.colorCircle, { backgroundColor: word.color }]} />
+            ) : word.photoUrl ? (
+              <Image source={{ uri: word.photoUrl }} style={styles.cardImg} resizeMode="cover" />
             ) : (
               <View style={styles.cardImgWrap}>
                 <Image source={THEME_IMAGES[word.theme]} style={styles.cardImg} resizeMode="contain" />
@@ -85,18 +87,22 @@ export default function ExploreCategoryScreen() {
       <Modal visible={!!selectedWord} transparent animationType="fade" onRequestClose={handleClose}>
         <TouchableOpacity style={styles.modalOverlay} onPress={handleClose} activeOpacity={1}>
           <View style={styles.modalCard}>
-            <View style={[styles.modalIconCircle, { backgroundColor: (selectedWord?.color ?? '#FF6B35') + '22' }]}>
-              {selectedWord?.theme === 'colors' ? (
-                <View style={[styles.colorCircleLg, { backgroundColor: selectedWord?.color }]} />
-              ) : selectedWord ? (
-                <>
-                  <Image source={THEME_IMAGES[selectedWord.theme]} style={styles.modalImg} resizeMode="contain" />
-                  <View style={styles.modalIconBadge}>
-                    <MaterialCommunityIcons name={(selectedWord.icon ?? 'star') as any} size={22} color={selectedWord.color} />
-                  </View>
-                </>
-              ) : null}
-            </View>
+            {selectedWord?.photoUrl ? (
+              <Image source={{ uri: selectedWord.photoUrl }} style={styles.modalPhoto} resizeMode="cover" />
+            ) : (
+              <View style={[styles.modalIconCircle, { backgroundColor: (selectedWord?.color ?? '#FF6B35') + '22' }]}>
+                {selectedWord?.theme === 'colors' ? (
+                  <View style={[styles.colorCircleLg, { backgroundColor: selectedWord?.color }]} />
+                ) : selectedWord ? (
+                  <>
+                    <Image source={THEME_IMAGES[selectedWord.theme]} style={styles.modalImg} resizeMode="contain" />
+                    <View style={styles.modalIconBadge}>
+                      <MaterialCommunityIcons name={(selectedWord.icon ?? 'star') as any} size={22} color={selectedWord.color} />
+                    </View>
+                  </>
+                ) : null}
+              </View>
+            )}
             <Text style={styles.modalEnglish}>{selectedWord?.english}</Text>
             <Text style={[styles.modalArabic, { color: selectedWord?.color }]}>{selectedWord?.arabic}</Text>
             <Text style={styles.modalTranslit}>{selectedWord?.transliteration}</Text>
@@ -132,7 +138,8 @@ const styles = StyleSheet.create({
   wordCard: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: 18, padding: 12, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 6, elevation: 2, minHeight: 110 },
   colorCircle: { width: 40, height: 40, borderRadius: 20 },
   cardImgWrap: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  cardImg: { width: 40, height: 40, borderRadius: 8 },
+  cardImg: { width: 44, height: 44, borderRadius: 10 },
+  modalPhoto: { width: 150, height: 150, borderRadius: 24, marginBottom: 16 },
   cardIconBadge: { position: 'absolute', bottom: -2, right: -2, backgroundColor: '#FFF', borderRadius: 8, padding: 2 },
   wordEnglish: { fontFamily: 'Nunito_600SemiBold', fontSize: 12, color: '#1A1A2E', marginTop: 6, textAlign: 'center' },
   wordArabic: { fontFamily: 'Nunito_700Bold', fontSize: 16, marginTop: 2, textAlign: 'center', writingDirection: 'rtl' },

@@ -8,8 +8,45 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp } from '@/context/AppContext';
 import { TROPHIES } from '@/constants/trophies';
 import { STICKERS } from '@/constants/stickers';
+import type { Sticker } from '@/types';
+import type { Trophy } from '@/types';
 
 type Tab = 'trophies' | 'stickers';
+
+function TrophyItem({ trophy, earned }: { trophy: Trophy; earned: boolean }) {
+  return (
+    <View style={[styles.card, earned ? styles.cardEarned : styles.cardLocked]}>
+      <View style={[styles.iconCircle, { backgroundColor: earned ? trophy.color + '25' : '#F5F5F5' }]}>
+        <MaterialCommunityIcons name={trophy.icon as any} size={40} color={earned ? trophy.color : '#CCCCCC'} />
+      </View>
+      <Text style={[styles.cardTitle, { color: earned ? '#1A1A2E' : '#BBBBBB' }]}>{trophy.title}</Text>
+      <Text style={[styles.cardDesc, { color: earned ? '#8A7E74' : '#CCCCCC' }]}>{trophy.description}</Text>
+      {earned ? (
+        <View style={[styles.earnedBadge, { backgroundColor: trophy.color }]}>
+          <MaterialCommunityIcons name="check" size={12} color="#FFF" />
+        </View>
+      ) : (
+        <MaterialCommunityIcons name="lock" size={16} color="#CCCCCC" style={{ marginTop: 6 }} />
+      )}
+    </View>
+  );
+}
+
+function StickerItem({ sticker, earned }: { sticker: Sticker; earned: boolean }) {
+  return (
+    <View style={[styles.stickerCard, {
+      borderColor: earned ? sticker.color : '#F0E8DC',
+      backgroundColor: earned ? sticker.color + '15' : '#F8F8F8',
+    }]}>
+      <View style={[styles.stickerIconCircle, { backgroundColor: earned ? sticker.color + '30' : '#EEEEEE' }]}>
+        <MaterialCommunityIcons name={sticker.icon as any} size={32} color={earned ? sticker.color : '#CCCCCC'} />
+      </View>
+      <Text style={[styles.stickerName, { color: earned ? '#1A1A2E' : '#BBBBBB' }]} numberOfLines={1}>{sticker.name}</Text>
+      <Text style={[styles.stickerDesc, { color: earned ? '#8A7E74' : '#CCCCCC' }]} numberOfLines={2}>{sticker.description}</Text>
+      {!earned && <MaterialCommunityIcons name="lock" size={14} color="#CCCCCC" style={{ marginTop: 4 }} />}
+    </View>
+  );
+}
 
 export default function TrophiesScreen() {
   const router = useRouter();
@@ -88,25 +125,9 @@ export default function TrophiesScreen() {
           contentContainerStyle={[styles.grid, { paddingBottom: bottomPad + 20 }]}
           showsVerticalScrollIndicator={false}
           columnWrapperStyle={{ gap: 14 }}
-          renderItem={({ item: trophy }) => {
-            const earned = earnedTrophies.includes(trophy.id);
-            return (
-              <View style={[styles.card, earned ? styles.cardEarned : styles.cardLocked]}>
-                <View style={[styles.iconCircle, { backgroundColor: earned ? trophy.color + '25' : '#F5F5F5' }]}>
-                  <MaterialCommunityIcons name={trophy.icon as any} size={40} color={earned ? trophy.color : '#CCCCCC'} />
-                </View>
-                <Text style={[styles.cardTitle, { color: earned ? '#1A1A2E' : '#BBBBBB' }]}>{trophy.title}</Text>
-                <Text style={[styles.cardDesc, { color: earned ? '#8A7E74' : '#CCCCCC' }]}>{trophy.description}</Text>
-                {earned ? (
-                  <View style={[styles.earnedBadge, { backgroundColor: trophy.color }]}>
-                    <MaterialCommunityIcons name="check" size={12} color="#FFF" />
-                  </View>
-                ) : (
-                  <MaterialCommunityIcons name="lock" size={16} color="#CCCCCC" style={{ marginTop: 6 }} />
-                )}
-              </View>
-            );
-          }}
+          renderItem={({ item: trophy }) => (
+            <TrophyItem trophy={trophy} earned={earnedTrophies.includes(trophy.id)} />
+          )}
         />
       ) : (
         <FlatList
@@ -116,19 +137,9 @@ export default function TrophiesScreen() {
           contentContainerStyle={[styles.stickerGrid, { paddingBottom: bottomPad + 20 }]}
           showsVerticalScrollIndicator={false}
           columnWrapperStyle={{ gap: 10 }}
-          renderItem={({ item: sticker }) => {
-            const earned = earnedStickers.includes(sticker.id);
-            return (
-              <View style={[styles.stickerCard, { borderColor: earned ? sticker.color : '#F0E8DC', backgroundColor: earned ? sticker.color + '15' : '#F8F8F8' }]}>
-                <View style={[styles.stickerIconCircle, { backgroundColor: earned ? sticker.color + '30' : '#EEEEEE' }]}>
-                  <MaterialCommunityIcons name={sticker.icon as any} size={32} color={earned ? sticker.color : '#CCCCCC'} />
-                </View>
-                <Text style={[styles.stickerName, { color: earned ? '#1A1A2E' : '#BBBBBB' }]} numberOfLines={1}>{sticker.name}</Text>
-                <Text style={[styles.stickerDesc, { color: earned ? '#8A7E74' : '#CCCCCC' }]} numberOfLines={2}>{sticker.description}</Text>
-                {!earned && <MaterialCommunityIcons name="lock" size={14} color="#CCCCCC" style={{ marginTop: 4 }} />}
-              </View>
-            );
-          }}
+          renderItem={({ item: sticker }) => (
+            <StickerItem sticker={sticker} earned={earnedStickers.includes(sticker.id)} />
+          )}
         />
       )}
     </View>

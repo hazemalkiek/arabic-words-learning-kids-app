@@ -30,7 +30,7 @@ export default function ExploreCategoryScreen() {
     markWordSeen(word.id);
     setTimeout(() => {
       Speech.stop();
-      Speech.speak(word.arabic, { language: 'ar', rate: 0.75 });
+      Speech.speak(word.arabic, { language: 'ar-SA', rate: 0.6, pitch: 1.0 });
     }, 200);
   };
 
@@ -104,7 +104,7 @@ export default function ExploreCategoryScreen() {
               style={[styles.speakerBtn, { backgroundColor: (selectedWord?.color ?? '#FF6B35') + '22' }]}
               onPress={() => {
                 Speech.stop();
-                if (selectedWord) Speech.speak(selectedWord.arabic, { language: 'ar', rate: 0.75 });
+                if (selectedWord) Speech.speak(selectedWord.arabic, { language: 'ar-SA', rate: 0.6, pitch: 1.0 });
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               }}
             >

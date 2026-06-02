@@ -83,6 +83,7 @@ export default function TestGameScreen() {
   const [newTrophies, setNewTrophies] = useState<string[]>([]);
   const [newStickers, setNewStickers] = useState<string[]>([]);
   const [answered, setAnswered] = useState(false);
+  const [wrongMsg, setWrongMsg] = useState<string | null>(null);
 
   const progressAnim = useSharedValue(0);
   const cardScale = useSharedValue(1);
@@ -103,6 +104,7 @@ export default function TestGameScreen() {
     setOptions(allOptions);
     setAnswerState({});
     setAnswered(false);
+    setWrongMsg(null);
     progressAnim.value = withTiming((index + 1) / words.length, { duration: 400 });
     cardScale.value = withSpring(1, { damping: 14 });
     setTimeout(() => {
@@ -110,6 +112,14 @@ export default function TestGameScreen() {
       Speech.speak(word.english, { language: 'en', rate: 0.9 });
     }, 300);
   }
+
+  const WRONG_ENCOURAGEMENTS = [
+    'So close! Keep going! 💪',
+    'Almost there — you can do it! 🌟',
+    'Nice try! Practice makes perfect! 🎯',
+    'Don\'t worry, try the next one! 😊',
+    'Great effort! You\'ll get it! 🔥',
+  ];
 
   const handleAnswer = (word: Word) => {
     if (answered) return;
@@ -129,6 +139,9 @@ export default function TestGameScreen() {
       setCorrectCount(prev => prev + 1);
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 1200);
+    } else {
+      const enc = WRONG_ENCOURAGEMENTS[Math.floor(Math.random() * WRONG_ENCOURAGEMENTS.length)];
+      setWrongMsg(`${enc}\nThe right answer: ${currentWord.arabic} (${currentWord.transliteration})`);
     }
     setTimeout(() => {
       const nextIndex = currentIndex + 1;
@@ -298,6 +311,15 @@ export default function TestGameScreen() {
           />
         ))}
       </View>
+
+      {/* Wrong-answer encouragement + hint */}
+      {wrongMsg && (
+        <View style={styles.wrongMsgBox}>
+          {wrongMsg.split('\n').map((line, i) => (
+            <Text key={i} style={i === 0 ? styles.wrongEnc : styles.wrongHint}>{line}</Text>
+          ))}
+        </View>
+      )}
     </View>
   );
 }
@@ -339,6 +361,9 @@ const styles = StyleSheet.create({
   retryBtnText: { fontFamily: 'Nunito_700Bold', fontSize: 17, color: '#9B5DE5' },
   homeBtn: { flex: 1, backgroundColor: '#9B5DE5', borderRadius: 20, paddingVertical: 16, alignItems: 'center' },
   homeBtnText: { fontFamily: 'Nunito_700Bold', fontSize: 17, color: '#FFF' },
+  wrongMsgBox: { marginHorizontal: 16, marginTop: 8, backgroundColor: '#FFF0E8', borderRadius: 16, padding: 14, borderLeftWidth: 4, borderLeftColor: '#FF6B6B' },
+  wrongEnc: { fontFamily: 'Nunito_700Bold', fontSize: 14, color: '#FF6B35', marginBottom: 4 },
+  wrongHint: { fontFamily: 'Nunito_600SemiBold', fontSize: 15, color: '#1A1A2E', writingDirection: 'rtl' },
   errorText: { fontFamily: 'Nunito_600SemiBold', fontSize: 16, color: '#8A7E74', marginBottom: 16 },
   backBtnFull: { backgroundColor: '#9B5DE5', borderRadius: 16, paddingVertical: 12, paddingHorizontal: 24 },
   backBtnText: { fontFamily: 'Nunito_700Bold', fontSize: 16, color: '#FFF' },

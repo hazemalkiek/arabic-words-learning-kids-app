@@ -44,6 +44,10 @@ export default function LearnGameScreen() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [newTrophies, setNewTrophies] = useState<string[]>([]);
   const [newStickers, setNewStickers] = useState<string[]>([]);
+  const [revealed, setRevealed] = useState(false);
+
+  const arabicOpacity = useSharedValue(0);
+  const arabicY = useSharedValue(20);
 
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
   const progressAnim = useSharedValue(0);
@@ -54,16 +58,24 @@ export default function LearnGameScreen() {
     return () => { Speech.stop(); };
   }, []);
 
+  const revealArabic = useCallback((word: typeof words[0]) => {
+    setRevealed(true);
+    arabicOpacity.value = withTiming(1, { duration: 350 });
+    arabicY.value = withSpring(0, { damping: 14 });
+    setTimeout(() => {
+      Speech.stop();
+      Speech.speak(word.arabic, { language: 'ar-SA', rate: 0.6, pitch: 1.0 });
+    }, 200);
+  }, []);
+
   const showWord = useCallback((index: number) => {
     if (index >= words.length) return;
+    setRevealed(false);
+    arabicOpacity.value = 0;
+    arabicY.value = 20;
     cardScale.value = withSpring(1, { damping: 14 });
     cardOpacity.value = withTiming(1, { duration: 300 });
     progressAnim.value = withTiming((index + 1) / words.length, { duration: 400 });
-    const word = words[index];
-    setTimeout(() => {
-      Speech.stop();
-      Speech.speak(word.arabic, { language: 'ar', rate: 0.75 });
-    }, 400);
   }, [words]);
 
   useEffect(() => {
@@ -104,7 +116,7 @@ export default function LearnGameScreen() {
   const handleSpeak = () => {
     const word = words[currentIndex];
     Speech.stop();
-    Speech.speak(word.arabic, { language: 'ar', rate: 0.75 });
+    Speech.speak(word.arabic, { language: 'ar-SA', rate: 0.6, pitch: 1.0 });
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
@@ -114,6 +126,10 @@ export default function LearnGameScreen() {
   const cardStyle = useAnimatedStyle(() => ({
     transform: [{ scale: cardScale.value }],
     opacity: cardOpacity.value,
+  }));
+  const arabicRevealStyle = useAnimatedStyle(() => ({
+    opacity: arabicOpacity.value,
+    transform: [{ translateY: arabicY.value }],
   }));
 
   if (words.length === 0) {
@@ -223,15 +239,27 @@ export default function LearnGameScreen() {
           {/* Divider */}
           <View style={styles.divider} />
 
-          {/* Arabic */}
-          <Text style={styles.arabicWord}>{currentWord.arabic}</Text>
-          <Text style={styles.translitText}>{currentWord.transliteration}</Text>
-
-          {/* Speaker */}
-          <TouchableOpacity style={styles.speakerBtn} onPress={handleSpeak}>
-            <MaterialCommunityIcons name="volume-high" size={28} color="#FF6B35" />
-            <Text style={styles.speakerLabel}>Tap to hear</Text>
-          </TouchableOpacity>
+          {/* Staged Arabic Reveal */}
+          {!revealed ? (
+            <TouchableOpacity
+              style={styles.revealBtn}
+              onPress={() => revealArabic(currentWord)}
+              activeOpacity={0.8}
+            >
+              <MaterialCommunityIcons name="eye-outline" size={22} color="#4ECDC4" />
+              <Text style={styles.revealBtnText}>Show Arabic</Text>
+              <MaterialCommunityIcons name="arrow-right" size={18} color="#4ECDC4" />
+            </TouchableOpacity>
+          ) : (
+            <Animated.View style={[styles.arabicSection, arabicRevealStyle]}>
+              <Text style={styles.arabicWord}>{currentWord.arabic}</Text>
+              <Text style={styles.translitText}>{currentWord.transliteration}</Text>
+              <TouchableOpacity style={styles.speakerBtn} onPress={handleSpeak}>
+                <MaterialCommunityIcons name="volume-high" size={28} color="#FF6B35" />
+                <Text style={styles.speakerLabel}>Tap to hear again</Text>
+              </TouchableOpacity>
+            </Animated.View>
+          )}
         </Animated.View>
       </View>
 
@@ -263,7 +291,10 @@ const styles = StyleSheet.create({
   divider: { width: 60, height: 2, backgroundColor: '#F0E8DC', borderRadius: 1, marginVertical: 16 },
   arabicWord: { fontFamily: 'Nunito_800ExtraBold', fontSize: 42, color: '#FF6B35', textAlign: 'center', writingDirection: 'rtl' },
   translitText: { fontFamily: 'Nunito_400Regular', fontSize: 18, color: '#8A7E74', marginTop: 6, fontStyle: 'italic' },
-  speakerBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 20, paddingVertical: 10, paddingHorizontal: 20, backgroundColor: '#FFF0E8', borderRadius: 16 },
+  revealBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8, paddingVertical: 14, paddingHorizontal: 24, backgroundColor: '#E8FFFE', borderRadius: 20, borderWidth: 2, borderColor: '#4ECDC4' },
+  revealBtnText: { fontFamily: 'Nunito_700Bold', fontSize: 18, color: '#4ECDC4' },
+  arabicSection: { alignItems: 'center', width: '100%' },
+  speakerBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 16, paddingVertical: 10, paddingHorizontal: 20, backgroundColor: '#FFF0E8', borderRadius: 16 },
   speakerLabel: { fontFamily: 'Nunito_600SemiBold', fontSize: 15, color: '#FF6B35' },
   bottomBar: { paddingHorizontal: 24, paddingBottom: 40, paddingTop: 16 },
   nextBtn: { backgroundColor: '#FF6B35', borderRadius: 24, paddingVertical: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, shadowColor: '#FF6B35', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 6 },

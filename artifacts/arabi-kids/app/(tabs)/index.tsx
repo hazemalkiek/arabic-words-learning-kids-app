@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
   Alert, Platform, StatusBar, Modal, TextInput,
@@ -8,6 +8,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useApp } from '@/context/AppContext';
 import { MascotCharacter } from '@/components/MascotCharacter';
 import { AVATAR_ICONS, AVATAR_COLORS, Profile } from '@/types';
@@ -126,6 +127,15 @@ export default function ProfileSelectionScreen() {
   const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPad = Platform.OS === 'web' ? 34 : insets.bottom;
+
+  // On first launch (no onboarding seen) redirect to the animated splash
+  useEffect(() => {
+    if (!isLoading) {
+      AsyncStorage.getItem('@arabi_onboarded').then(v => {
+        if (v !== 'true') router.replace('/onboarding');
+      });
+    }
+  }, [isLoading]);
 
   const handleSelectProfile = async (profileId: string) => {
     await setActiveProfileId(profileId);

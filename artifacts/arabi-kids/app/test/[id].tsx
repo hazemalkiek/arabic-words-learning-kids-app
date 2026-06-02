@@ -12,6 +12,7 @@ import { useApp } from '@/context/AppContext';
 import { ConfettiEffect } from '@/components/ConfettiEffect';
 import { getWordsByLevel, getRandomWrongAnswers } from '@/constants/words';
 import { TROPHIES } from '@/constants/trophies';
+import { STICKERS } from '@/constants/stickers';
 import { Difficulty, Theme, Word } from '@/types';
 
 function OptionButton({ word, onPress, state }: { word: Word; onPress: () => void; state: 'idle' | 'correct' | 'wrong' | 'reveal' }) {
@@ -77,6 +78,7 @@ export default function TestGameScreen() {
   const [isCompleted, setIsCompleted] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [newTrophies, setNewTrophies] = useState<string[]>([]);
+  const [newStickers, setNewStickers] = useState<string[]>([]);
   const [answered, setAnswered] = useState(false);
 
   const progressAnim = useSharedValue(0);
@@ -138,9 +140,10 @@ export default function TestGameScreen() {
   async function finishTest(finalCorrect: number) {
     const pct = finalCorrect / words.length;
     const stars = pct >= 1 ? 3 : pct >= 0.6 ? 2 : pct > 0 ? 1 : 0;
-    const newT = await recordTestResult({ levelId: `test-${id}`, stars, score: finalCorrect, total: words.length, date: new Date().toISOString().split('T')[0] });
+    const rewards = await recordTestResult({ levelId: `test-${id}`, stars, score: finalCorrect, total: words.length, date: new Date().toISOString().split('T')[0] });
     await completeLevel(`test-${id}`, stars);
-    setNewTrophies(newT);
+    setNewTrophies(rewards.trophies);
+    setNewStickers(rewards.stickers);
     setIsCompleted(true);
     if (stars === 3) setShowConfetti(true);
     Haptics.notificationAsync(stars >= 2 ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Warning);
@@ -175,18 +178,36 @@ export default function TestGameScreen() {
               <MaterialCommunityIcons key={s} name={s <= stars ? 'star' : 'star-outline'} size={44} color={s <= stars ? '#FFD700' : '#DDD'} />
             ))}
           </View>
-          {newTrophies.length > 0 && (
+          {(newTrophies.length > 0 || newStickers.length > 0) && (
             <View style={styles.newTrophySection}>
-              <Text style={styles.newTrophyLabel}>New Trophies!</Text>
-              {newTrophies.map((tId) => {
-                const t = TROPHIES.find(tr => tr.id === tId);
-                return t ? (
-                  <View key={tId} style={styles.newTrophyRow}>
-                    <MaterialCommunityIcons name={t.icon as any} size={22} color={t.color} />
-                    <Text style={styles.newTrophyTitle}>{t.title}</Text>
-                  </View>
-                ) : null;
-              })}
+              {newTrophies.length > 0 && (
+                <>
+                  <Text style={styles.newTrophyLabel}>🏆 New Trophies!</Text>
+                  {newTrophies.map((tid) => {
+                    const t = TROPHIES.find(tr => tr.id === tid);
+                    return t ? (
+                      <View key={tid} style={styles.newTrophyRow}>
+                        <MaterialCommunityIcons name={t.icon as any} size={20} color={t.color} />
+                        <Text style={styles.newTrophyTitle}>{t.title}</Text>
+                      </View>
+                    ) : null;
+                  })}
+                </>
+              )}
+              {newStickers.length > 0 && (
+                <>
+                  <Text style={[styles.newTrophyLabel, { color: '#FF4D9E' }]}>✨ New Stickers!</Text>
+                  {newStickers.map((sid) => {
+                    const s = STICKERS.find(st => st.id === sid);
+                    return s ? (
+                      <View key={sid} style={styles.newTrophyRow}>
+                        <MaterialCommunityIcons name={s.icon as any} size={20} color={s.color} />
+                        <Text style={styles.newTrophyTitle}>{s.name}</Text>
+                      </View>
+                    ) : null;
+                  })}
+                </>
+              )}
             </View>
           )}
           <View style={styles.resultsBtns}>

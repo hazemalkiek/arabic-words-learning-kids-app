@@ -9,8 +9,9 @@ export interface Word {
   transliteration: string;
   theme: Theme;
   difficulty: Difficulty;
-  icon: string; // MaterialCommunityIcons icon name
-  color: string; // background color for the word card
+  icon: string;
+  color: string;
+  imagePath?: string; // optional photo/illustration asset
 }
 
 export interface WordProgress {
@@ -30,19 +31,31 @@ export interface TestResult {
 export interface Profile {
   id: string;
   name: string;
-  avatarId: number; // 0-7
+  avatarId: number;
   createdAt: number;
   progress: Record<string, WordProgress>;
   completedLevels: Record<string, number>; // levelId → stars earned
   trophies: string[];
+  stickers: string[];
   streakCount: number;
+  bestStreak: number;
   lastActiveDate: string; // YYYY-MM-DD
   testResults: TestResult[];
+  timeSpentMinutes: number;
 }
 
 export interface Trophy {
   id: string;
   title: string;
+  description: string;
+  icon: string;
+  color: string;
+  condition: (profile: Profile) => boolean;
+}
+
+export interface Sticker {
+  id: string;
+  name: string;
   description: string;
   icon: string;
   color: string;

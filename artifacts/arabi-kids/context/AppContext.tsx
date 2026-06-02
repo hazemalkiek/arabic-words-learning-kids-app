@@ -2,9 +2,10 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Profile, WordProgress, TestResult } from '@/types';
 import { checkNewTrophies } from '@/constants/trophies';
+import { checkNewStickers } from '@/constants/stickers';
 
-const STORAGE_KEY = '@arabi_kids_profiles';
-const ACTIVE_KEY = '@arabi_kids_active';
+const STORAGE_KEY = '@arabi_kids_profiles_v2';
+const ACTIVE_KEY = '@arabi_kids_active_v2';
 
 interface AppContextType {
   profiles: Profile[];
@@ -13,10 +14,11 @@ interface AppContextType {
   isLoading: boolean;
   setActiveProfileId: (id: string | null) => void;
   createProfile: (name: string, avatarId: number) => Promise<Profile>;
+  editProfile: (id: string, name: string, avatarId: number) => Promise<void>;
   deleteProfile: (id: string) => Promise<void>;
-  markWordSeen: (wordId: string) => Promise<string[]>; // returns new trophy IDs
-  recordTestResult: (result: TestResult) => Promise<string[]>;
-  completeLevel: (levelId: string, stars: number) => Promise<string[]>;
+  markWordSeen: (wordId: string) => Promise<{ trophies: string[]; stickers: string[] }>;
+  recordTestResult: (result: TestResult) => Promise<{ trophies: string[]; stickers: string[] }>;
+  completeLevel: (levelId: string, stars: number) => Promise<{ trophies: string[]; stickers: string[] }>;
   updateStreak: () => Promise<void>;
 }
 
@@ -39,9 +41,12 @@ function createEmptyProfile(name: string, avatarId: number): Profile {
     progress: {},
     completedLevels: {},
     trophies: [],
+    stickers: [],
     streakCount: 1,
+    bestStreak: 1,
     lastActiveDate: todayString(),
     testResults: [],
+    timeSpentMinutes: 0,
   };
 }
 
@@ -60,7 +65,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         AsyncStorage.getItem(STORAGE_KEY),
         AsyncStorage.getItem(ACTIVE_KEY),
       ]);
-      if (profilesData) setProfiles(JSON.parse(profilesData));
+      if (profilesData) {
+        // Migrate old profiles that may lack new fields
+        const parsed: Profile[] = JSON.parse(profilesData);
+        const migrated = parsed.map(p => ({
+          stickers: [],
+          bestStreak: p.streakCount,
+          timeSpentMinutes: 0,
+          ...p,
+        }));
+        setProfiles(migrated);
+      }
       if (activeId) setActiveProfileIdState(activeId);
     } catch (e) {
       console.error('Failed to load data:', e);
@@ -85,9 +100,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const createProfile = useCallback(async (name: string, avatarId: number): Promise<Profile> => {
     const profile = createEmptyProfile(name, avatarId);
+    // New profiles auto-unlock welcome sticker
+    profile.stickers = ['sticker-welcome'];
     const updated = [...profiles, profile];
     await saveProfiles(updated);
     return profile;
+  }, [profiles]);
+
+  const editProfile = useCallback(async (id: string, name: string, avatarId: number): Promise<void> => {
+    const updated = profiles.map(p => p.id === id ? { ...p, name, avatarId } : p);
+    await saveProfiles(updated);
   }, [profiles]);
 
   const deleteProfile = useCallback(async (id: string) => {
@@ -98,43 +120,53 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, [profiles, activeProfileId]);
 
-  const updateProfile = useCallback(async (profileId: string, updater: (p: Profile) => Profile): Promise<string[]> => {
+  const updateProfileWithRewards = useCallback(async (
+    profileId: string,
+    updater: (p: Profile) => Profile
+  ): Promise<{ trophies: string[]; stickers: string[] }> => {
     let newTrophies: string[] = [];
+    let newStickers: string[] = [];
     const updated = profiles.map(p => {
       if (p.id !== profileId) return p;
       const updatedProfile = updater(p);
       newTrophies = checkNewTrophies(updatedProfile);
+      newStickers = checkNewStickers(updatedProfile);
       return {
         ...updatedProfile,
         trophies: [...updatedProfile.trophies, ...newTrophies],
+        stickers: [...updatedProfile.stickers, ...newStickers],
       };
     });
     await saveProfiles(updated);
-    return newTrophies;
+    return { trophies: newTrophies, stickers: newStickers };
   }, [profiles]);
 
-  const markWordSeen = useCallback(async (wordId: string): Promise<string[]> => {
-    if (!activeProfileId) return [];
-    return updateProfile(activeProfileId, (p) => ({
+  const markWordSeen = useCallback(async (wordId: string) => {
+    if (!activeProfileId) return { trophies: [], stickers: [] };
+    return updateProfileWithRewards(activeProfileId, (p) => ({
       ...p,
       progress: {
         ...p.progress,
-        [wordId]: { seen: true, testCorrect: p.progress[wordId]?.testCorrect ?? 0, testTotal: p.progress[wordId]?.testTotal ?? 0 },
+        [wordId]: {
+          seen: true,
+          testCorrect: p.progress[wordId]?.testCorrect ?? 0,
+          testTotal: p.progress[wordId]?.testTotal ?? 0,
+        },
       },
     }));
-  }, [activeProfileId, updateProfile]);
+  }, [activeProfileId, updateProfileWithRewards]);
 
-  const recordTestResult = useCallback(async (result: TestResult): Promise<string[]> => {
-    if (!activeProfileId) return [];
-    return updateProfile(activeProfileId, (p) => ({
+  const recordTestResult = useCallback(async (result: TestResult) => {
+    if (!activeProfileId) return { trophies: [], stickers: [] };
+    return updateProfileWithRewards(activeProfileId, (p) => ({
       ...p,
       testResults: [...p.testResults, result],
     }));
-  }, [activeProfileId, updateProfile]);
+  }, [activeProfileId, updateProfileWithRewards]);
 
-  const completeLevel = useCallback(async (levelId: string, stars: number): Promise<string[]> => {
-    if (!activeProfileId) return [];
-    return updateProfile(activeProfileId, (p) => {
+  const completeLevel = useCallback(async (levelId: string, stars: number) => {
+    if (!activeProfileId) return { trophies: [], stickers: [] };
+    return updateProfileWithRewards(activeProfileId, (p) => {
       const existing = p.completedLevels[levelId] ?? 0;
       return {
         ...p,
@@ -144,27 +176,32 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         },
       };
     });
-  }, [activeProfileId, updateProfile]);
+  }, [activeProfileId, updateProfileWithRewards]);
 
   const updateStreak = useCallback(async () => {
     if (!activeProfileId) return;
-    await updateProfile(activeProfileId, (p) => {
+    await updateProfileWithRewards(activeProfileId, (p) => {
       const today = todayString();
       if (p.lastActiveDate === today) return p;
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toISOString().split('T')[0];
       const newStreak = p.lastActiveDate === yesterdayStr ? p.streakCount + 1 : 1;
-      return { ...p, streakCount: newStreak, lastActiveDate: today };
+      return {
+        ...p,
+        streakCount: newStreak,
+        bestStreak: Math.max(p.bestStreak ?? newStreak, newStreak),
+        lastActiveDate: today,
+      };
     });
-  }, [activeProfileId, updateProfile]);
+  }, [activeProfileId, updateProfileWithRewards]);
 
   const activeProfile = profiles.find(p => p.id === activeProfileId) ?? null;
 
   return (
     <AppContext.Provider value={{
       profiles, activeProfileId, activeProfile, isLoading,
-      setActiveProfileId, createProfile, deleteProfile,
+      setActiveProfileId, createProfile, editProfile, deleteProfile,
       markWordSeen, recordTestResult, completeLevel, updateStreak,
     }}>
       {children}

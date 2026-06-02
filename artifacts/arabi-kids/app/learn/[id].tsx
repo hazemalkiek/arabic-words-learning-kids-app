@@ -12,6 +12,7 @@ import { useApp } from '@/context/AppContext';
 import { ConfettiEffect } from '@/components/ConfettiEffect';
 import { getWordsByLevel } from '@/constants/words';
 import { TROPHIES } from '@/constants/trophies';
+import { STICKERS } from '@/constants/stickers';
 import { Difficulty, Theme } from '@/types';
 
 function StarDisplay({ stars }: { stars: number }) {
@@ -39,6 +40,7 @@ export default function LearnGameScreen() {
   const [isCompleted, setIsCompleted] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [newTrophies, setNewTrophies] = useState<string[]>([]);
+  const [newStickers, setNewStickers] = useState<string[]>([]);
 
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
   const progressAnim = useSharedValue(0);
@@ -76,8 +78,9 @@ export default function LearnGameScreen() {
     setTimeout(async () => {
       const nextIndex = currentIndex + 1;
       if (nextIndex >= words.length) {
-        const newT = await completeLevel(id!, 3);
-        setNewTrophies(newT);
+        const rewards = await completeLevel(id!, 3);
+        setNewTrophies(rewards.trophies);
+        setNewStickers(rewards.stickers);
         setIsCompleted(true);
         setShowConfetti(true);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -123,18 +126,36 @@ export default function LearnGameScreen() {
           <Text style={styles.completedTitle}>رائع!</Text>
           <Text style={styles.completedSub}>Excellent! Level Complete!</Text>
           <StarDisplay stars={3} />
-          {newTrophies.length > 0 && (
+          {(newTrophies.length > 0 || newStickers.length > 0) && (
             <View style={styles.newTrophySection}>
-              <Text style={styles.newTrophyLabel}>New Trophies Unlocked!</Text>
-              {newTrophies.map((id) => {
-                const t = TROPHIES.find(tr => tr.id === id);
-                return t ? (
-                  <View key={id} style={styles.newTrophyRow}>
-                    <MaterialCommunityIcons name={t.icon as any} size={24} color={t.color} />
-                    <Text style={styles.newTrophyTitle}>{t.title}</Text>
-                  </View>
-                ) : null;
-              })}
+              {newTrophies.length > 0 && (
+                <>
+                  <Text style={styles.newTrophyLabel}>🏆 New Trophies!</Text>
+                  {newTrophies.map((tid) => {
+                    const t = TROPHIES.find(tr => tr.id === tid);
+                    return t ? (
+                      <View key={tid} style={styles.newTrophyRow}>
+                        <MaterialCommunityIcons name={t.icon as any} size={22} color={t.color} />
+                        <Text style={styles.newTrophyTitle}>{t.title}</Text>
+                      </View>
+                    ) : null;
+                  })}
+                </>
+              )}
+              {newStickers.length > 0 && (
+                <>
+                  <Text style={[styles.newTrophyLabel, { color: '#FF4D9E' }]}>✨ New Stickers!</Text>
+                  {newStickers.map((sid) => {
+                    const s = STICKERS.find(st => st.id === sid);
+                    return s ? (
+                      <View key={sid} style={styles.newTrophyRow}>
+                        <MaterialCommunityIcons name={s.icon as any} size={22} color={s.color} />
+                        <Text style={styles.newTrophyTitle}>{s.name}</Text>
+                      </View>
+                    ) : null;
+                  })}
+                </>
+              )}
             </View>
           )}
           <View style={styles.completedBtns}>

@@ -1,0 +1,27 @@
+c889f3ed03bf:Arabic-Words-Learning-Kids-App hbalkiek$ pnpm install
+Scope: all 9 workspace projects
+✗ Lockfile failed supply-chain policy check (1082 entries in 56.2s)
+[ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION] 1080 lockfile entries failed verification:
+  @0no-co/graphql.web@1.2.0 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@0no-co%2Fgraphql.web: Unauthorized - 401)
+  @babel/code-frame@7.10.4 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@babel%2Fcode-frame: Unauthorized - 401)
+  @babel/code-frame@7.29.0 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@babel%2Fcode-frame: Unauthorized - 401)
+  @babel/code-frame@7.29.7 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@babel%2Fcode-frame: Unauthorized - 401)
+  @babel/compat-data@7.29.3 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@babel%2Fcompat-data: Unauthorized - 401)
+  @babel/compat-data@7.29.7 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@babel%2Fcompat-data: Unauthorized - 401)
+  @babel/core@7.29.0 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@babel%2Fcore: Unauthorized - 401)
+  @babel/generator@7.29.1 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@babel%2Fgenerator: Unauthorized - 401)
+  @babel/generator@7.29.7 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@babel%2Fgenerator: Unauthorized - 401)
+  @babel/helper-annotate-as-pure@7.29.7 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@babel%2Fhelper-annotate-as-pure: Unauthorized - 401)
+  @babel/helper-compilation-targets@7.28.6 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@babel%2Fhelper-compilation-targets: Unauthorized - 401)
+  @babel/helper-compilation-targets@7.29.7 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@babel%2Fhelper-compilation-targets: Unauthorized - 401)
+  @babel/helper-create-class-features-plugin@7.29.7 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@babel%2Fhelper-create-class-features-plugin: Unauthorized - 401)
+  @babel/helper-create-regexp-features-plugin@7.29.7 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@babel%2Fhelper-create-regexp-features-plugin: Unauthorized - 401)
+  @babel/helper-define-polyfill-provider@0.6.8 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@babel%2Fhelper-define-polyfill-provider: Unauthorized - 401)
+  @babel/helper-globals@7.28.0 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@babel%2Fhelper-globals: Unauthorized - 401)
+  @babel/helper-globals@7.29.7 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@babel%2Fhelper-globals: Unauthorized - 401)
+  @babel/helper-member-expression-to-functions@7.29.7 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@babel%2Fhelper-member-expression-to-functions: Unauthorized - 401)
+  @babel/helper-module-imports@7.28.6 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@babel%2Fhelper-module-imports: Unauthorized - 401)
+  @babel/helper-module-imports@7.29.7 could not be checked against minimumReleaseAge (GET https://amazon-149122183214.d.codeartifact.us-west-2.amazonaws.com/npm/shared/@babel%2Fhelper-module-imports: Unauthorized - 401)
+  …and 1060 more
+
+The lockfile contains entries that the active policies reject. This can mean the lockfile is stale, or that someone committed a lockfile that bypassed the policy locally — inspect recent changes to pnpm-lock.yaml before trusting it. If the changes look expected, run "pnpm clean --lockfile" and then "pnpm install" to rebuild from a fresh resolution. Alternatively, relax the policy that flagged them.

@@ -32,11 +32,10 @@ export function FeedbackModal({ visible, onClose }: { visible: boolean; onClose:
         arr.push(entry);
         return AsyncStorage.setItem(FEEDBACK_KEY, JSON.stringify(arr));
       }),
-      fetch(SHEETS_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(entry),
-      }),
+      fetch(
+        `${SHEETS_URL}?rating=${entry.rating}&text=${encodeURIComponent(entry.text)}&date=${encodeURIComponent(entry.date)}`,
+        { method: 'GET' }
+      ),
     ]);
 
     setSubmitted(true);

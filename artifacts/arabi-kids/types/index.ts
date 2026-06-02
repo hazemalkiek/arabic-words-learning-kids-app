@@ -42,6 +42,7 @@ export interface Profile {
   lastActiveDate: string; // YYYY-MM-DD
   testResults: TestResult[];
   timeSpentMinutes: number;
+  activityLog: string[]; // YYYY-MM-DD strings for each day active (last 60 days)
 }
 
 export interface Trophy {

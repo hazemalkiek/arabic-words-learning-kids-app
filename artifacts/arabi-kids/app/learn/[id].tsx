@@ -29,7 +29,8 @@ export default function LearnGameScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { markWordSeen, completeLevel } = useApp();
+  const { markWordSeen, completeLevel, addTimeSpent } = useApp();
+  const sessionStartRef = React.useRef(Date.now());
 
   const parts = (id ?? '').split('-');
   const difficulty = parts[parts.length - 1] as Difficulty;
@@ -78,6 +79,8 @@ export default function LearnGameScreen() {
     setTimeout(async () => {
       const nextIndex = currentIndex + 1;
       if (nextIndex >= words.length) {
+        const elapsedMinutes = (Date.now() - sessionStartRef.current) / 60000;
+        await addTimeSpent(Math.round(elapsedMinutes));
         const rewards = await completeLevel(id!, 3);
         setNewTrophies(rewards.trophies);
         setNewStickers(rewards.stickers);

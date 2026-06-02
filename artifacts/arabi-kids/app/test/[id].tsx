@@ -63,7 +63,8 @@ export default function TestGameScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { recordTestResult, completeLevel } = useApp();
+  const { recordTestResult, completeLevel, addTimeSpent } = useApp();
+  const sessionStartRef = React.useRef(Date.now());
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
 
   const parts = (id ?? '').split('-');
@@ -138,6 +139,8 @@ export default function TestGameScreen() {
   };
 
   async function finishTest(finalCorrect: number) {
+    const elapsedMinutes = (Date.now() - sessionStartRef.current) / 60000;
+    await addTimeSpent(Math.round(elapsedMinutes));
     const pct = finalCorrect / words.length;
     const stars = pct >= 1 ? 3 : pct >= 0.6 ? 2 : pct > 0 ? 1 : 0;
     const rewards = await recordTestResult({ levelId: `test-${id}`, stars, score: finalCorrect, total: words.length, date: new Date().toISOString().split('T')[0] });

@@ -106,6 +106,33 @@ function StatItem({ icon, color, value, label }: { icon: string; color: string; 
   );
 }
 
+function StreakHistory({ profile }: { profile: NonNullable<ReturnType<typeof useApp>['activeProfile']> }) {
+  const days: { date: string; label: string; active: boolean }[] = [];
+  const activitySet = new Set(profile.activityLog ?? []);
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    const label = d.toLocaleDateString('en', { weekday: 'short' }).charAt(0);
+    days.push({ date: dateStr, label, active: activitySet.has(dateStr) });
+  }
+  return (
+    <View style={styles.streakHistorySection}>
+      <Text style={styles.themeSectionTitle}>Last 14 Days</Text>
+      <View style={styles.streakDaysRow}>
+        {days.map((day) => (
+          <View key={day.date} style={styles.streakDayCol}>
+            <View style={[styles.streakDayDot, { backgroundColor: day.active ? '#FF6B35' : '#F0E8DC' }]}>
+              {day.active && <MaterialCommunityIcons name="check" size={10} color="#FFF" />}
+            </View>
+            <Text style={[styles.streakDayLabel, { color: day.active ? '#FF6B35' : '#BBAA99' }]}>{day.label}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 function ThemeProgress({ profile }: { profile: NonNullable<ReturnType<typeof useApp>['activeProfile']> }) {
   return (
     <View style={styles.themeSection}>
@@ -244,7 +271,11 @@ export default function ParentScreen() {
                 <StatItem icon="sticker-emoji" color="#FF4D9E" value={stickers} label="Stickers" />
                 <StatItem icon="percent" color="#6BCB77" value={`${accuracy}%`} label="Accuracy" />
                 <StatItem icon="calendar-check" color="#9B5DE5" value={`${profile.bestStreak ?? profile.streakCount}d`} label="Best Streak" />
+                <StatItem icon="clock-outline" color="#FF8B42" value={profile.timeSpentMinutes < 60 ? `${profile.timeSpentMinutes}m` : `${Math.floor(profile.timeSpentMinutes / 60)}h ${profile.timeSpentMinutes % 60}m`} label="Time Spent" />
               </View>
+
+              {/* Streak history — last 14 days */}
+              <StreakHistory profile={profile} />
 
               {/* Per-theme breakdown */}
               <ThemeProgress profile={profile} />
@@ -286,6 +317,11 @@ const styles = StyleSheet.create({
   statItem: { width: '30%', backgroundColor: '#FFF8F0', borderRadius: 16, padding: 12, alignItems: 'center', gap: 3, flexGrow: 1 },
   statValue: { fontFamily: 'Nunito_800ExtraBold', fontSize: 20, color: '#1A1A2E' },
   statLabel: { fontFamily: 'Nunito_400Regular', fontSize: 11, color: '#8A7E74', textAlign: 'center' },
+  streakHistorySection: { borderTopWidth: 1, borderTopColor: '#F0E8DC', paddingTop: 14, marginBottom: 14 },
+  streakDaysRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  streakDayCol: { alignItems: 'center', gap: 4 },
+  streakDayDot: { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
+  streakDayLabel: { fontFamily: 'Nunito_700Bold', fontSize: 10 },
   themeSection: { borderTopWidth: 1, borderTopColor: '#F0E8DC', paddingTop: 14 },
   themeSectionTitle: { fontFamily: 'Nunito_700Bold', fontSize: 14, color: '#8A7E74', marginBottom: 10 },
   themeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },

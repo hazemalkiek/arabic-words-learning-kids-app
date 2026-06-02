@@ -19,6 +19,7 @@ interface AppContextType {
   markWordSeen: (wordId: string) => Promise<{ trophies: string[]; stickers: string[] }>;
   recordTestResult: (result: TestResult) => Promise<{ trophies: string[]; stickers: string[] }>;
   completeLevel: (levelId: string, stars: number) => Promise<{ trophies: string[]; stickers: string[] }>;
+  addTimeSpent: (minutes: number) => Promise<void>;
   updateStreak: () => Promise<void>;
 }
 
@@ -32,7 +33,29 @@ function todayString(): string {
   return new Date().toISOString().split('T')[0];
 }
 
+/** Ensure a parsed profile from storage has all fields with correct types */
+function migrateProfile(p: Partial<Profile> & { id: string; name: string }): Profile {
+  const streakCount = p.streakCount ?? 1;
+  return {
+    id: p.id,
+    name: p.name,
+    avatarId: p.avatarId ?? 0,
+    createdAt: p.createdAt ?? Date.now(),
+    progress: p.progress ?? {},
+    completedLevels: p.completedLevels ?? {},
+    trophies: p.trophies ?? [],
+    stickers: p.stickers ?? [],
+    streakCount,
+    bestStreak: p.bestStreak ?? streakCount,
+    lastActiveDate: p.lastActiveDate ?? todayString(),
+    testResults: p.testResults ?? [],
+    timeSpentMinutes: p.timeSpentMinutes ?? 0,
+    activityLog: p.activityLog ?? (p.lastActiveDate ? [p.lastActiveDate] : [todayString()]),
+  };
+}
+
 function createEmptyProfile(name: string, avatarId: number): Profile {
+  const today = todayString();
   return {
     id: generateId(),
     name,
@@ -41,12 +64,13 @@ function createEmptyProfile(name: string, avatarId: number): Profile {
     progress: {},
     completedLevels: {},
     trophies: [],
-    stickers: [],
+    stickers: ['sticker-welcome'],
     streakCount: 1,
     bestStreak: 1,
-    lastActiveDate: todayString(),
+    lastActiveDate: today,
     testResults: [],
     timeSpentMinutes: 0,
+    activityLog: [today],
   };
 }
 
@@ -66,14 +90,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         AsyncStorage.getItem(ACTIVE_KEY),
       ]);
       if (profilesData) {
-        // Migrate old profiles that may lack new fields
-        const parsed: Profile[] = JSON.parse(profilesData);
-        const migrated = parsed.map(p => ({
-          stickers: [],
-          bestStreak: p.streakCount,
-          timeSpentMinutes: 0,
-          ...p,
-        }));
+        const parsed: unknown[] = JSON.parse(profilesData);
+        const migrated = (parsed as Array<Partial<Profile> & { id: string; name: string }>).map(migrateProfile);
         setProfiles(migrated);
       }
       if (activeId) setActiveProfileIdState(activeId);
@@ -100,8 +118,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const createProfile = useCallback(async (name: string, avatarId: number): Promise<Profile> => {
     const profile = createEmptyProfile(name, avatarId);
-    // New profiles auto-unlock welcome sticker
-    profile.stickers = ['sticker-welcome'];
     const updated = [...profiles, profile];
     await saveProfiles(updated);
     return profile;
@@ -178,11 +194,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, [activeProfileId, updateProfileWithRewards]);
 
+  const addTimeSpent = useCallback(async (minutes: number) => {
+    if (!activeProfileId) return;
+    const updated = profiles.map(p => p.id === activeProfileId
+      ? { ...p, timeSpentMinutes: p.timeSpentMinutes + Math.max(0, minutes) }
+      : p
+    );
+    await saveProfiles(updated);
+  }, [activeProfileId, profiles]);
+
   const updateStreak = useCallback(async () => {
     if (!activeProfileId) return;
     await updateProfileWithRewards(activeProfileId, (p) => {
       const today = todayString();
-      if (p.lastActiveDate === today) return p;
+      // Update activity log: add today if missing, keep last 60 days
+      const logSet = new Set(p.activityLog ?? []);
+      logSet.add(today);
+      const sortedLog = [...logSet].sort().slice(-60);
+
+      if (p.lastActiveDate === today) return { ...p, activityLog: sortedLog };
+
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toISOString().split('T')[0];
@@ -192,6 +223,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         streakCount: newStreak,
         bestStreak: Math.max(p.bestStreak ?? newStreak, newStreak),
         lastActiveDate: today,
+        activityLog: sortedLog,
       };
     });
   }, [activeProfileId, updateProfileWithRewards]);
@@ -202,7 +234,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     <AppContext.Provider value={{
       profiles, activeProfileId, activeProfile, isLoading,
       setActiveProfileId, createProfile, editProfile, deleteProfile,
-      markWordSeen, recordTestResult, completeLevel, updateStreak,
+      markWordSeen, recordTestResult, completeLevel, addTimeSpent, updateStreak,
     }}>
       {children}
     </AppContext.Provider>

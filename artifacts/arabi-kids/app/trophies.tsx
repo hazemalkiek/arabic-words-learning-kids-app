@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, FlatList, Platform,
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -103,44 +103,36 @@ export default function TrophiesScreen() {
           <>
             <Text style={styles.progressText}>{trophyCount} of {TROPHIES.length} trophies unlocked</Text>
             <View style={styles.progressTrack}>
-              <View style={[styles.progressFill, { width: `${(trophyCount / TROPHIES.length) * 100}%`, backgroundColor: '#FFD700' }]} />
+              <View style={[styles.progressFill, { width: `${(trophyCount / TROPHIES.length) * 100}%` as any, backgroundColor: '#FFD700' }]} />
             </View>
           </>
         ) : (
           <>
             <Text style={styles.progressText}>{stickerCount} of {STICKERS.length} stickers collected</Text>
             <View style={styles.progressTrack}>
-              <View style={[styles.progressFill, { width: `${(stickerCount / STICKERS.length) * 100}%`, backgroundColor: '#FF4D9E' }]} />
+              <View style={[styles.progressFill, { width: `${(stickerCount / STICKERS.length) * 100}%` as any, backgroundColor: '#FF4D9E' }]} />
             </View>
           </>
         )}
       </View>
 
-      {/* Grid */}
+      {/* Trophies grid */}
       {activeTab === 'trophies' ? (
-        <FlatList
-          data={TROPHIES}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          contentContainerStyle={[styles.grid, { paddingBottom: bottomPad + 20 }]}
-          showsVerticalScrollIndicator={false}
-          columnWrapperStyle={{ gap: 14 }}
-          renderItem={({ item: trophy }) => (
-            <TrophyItem trophy={trophy} earned={earnedTrophies.includes(trophy.id)} />
-          )}
-        />
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.trophyScroll, { paddingBottom: bottomPad + 20 }]}>
+          <View style={styles.trophyGrid}>
+            {TROPHIES.map(trophy => (
+              <TrophyItem key={trophy.id} trophy={trophy} earned={earnedTrophies.includes(trophy.id)} />
+            ))}
+          </View>
+        </ScrollView>
       ) : (
-        <FlatList
-          data={STICKERS}
-          keyExtractor={(item) => item.id}
-          numColumns={3}
-          contentContainerStyle={[styles.stickerGrid, { paddingBottom: bottomPad + 20 }]}
-          showsVerticalScrollIndicator={false}
-          columnWrapperStyle={{ gap: 10 }}
-          renderItem={({ item: sticker }) => (
-            <StickerItem sticker={sticker} earned={earnedStickers.includes(sticker.id)} />
-          )}
-        />
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.stickerScroll, { paddingBottom: bottomPad + 20 }]}>
+          <View style={styles.stickerGrid}>
+            {STICKERS.map(sticker => (
+              <StickerItem key={sticker.id} sticker={sticker} earned={earnedStickers.includes(sticker.id)} />
+            ))}
+          </View>
+        </ScrollView>
       )}
     </View>
   );
@@ -161,16 +153,18 @@ const styles = StyleSheet.create({
   progressText: { fontFamily: 'Nunito_600SemiBold', fontSize: 14, color: '#8A7E74', marginBottom: 6, textAlign: 'center' },
   progressTrack: { height: 8, backgroundColor: '#F0E8DC', borderRadius: 4, overflow: 'hidden' },
   progressFill: { height: 8, borderRadius: 4 },
-  grid: { paddingHorizontal: 16, gap: 14 },
-  card: { flex: 1, borderRadius: 24, padding: 16, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
+  trophyScroll: { paddingHorizontal: 16 },
+  trophyGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 14 },
+  card: { width: '47.5%', borderRadius: 24, padding: 16, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
   cardEarned: { backgroundColor: '#FFFFFF' },
   cardLocked: { backgroundColor: '#F8F8F8' },
   iconCircle: { width: 72, height: 72, borderRadius: 36, alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
   cardTitle: { fontFamily: 'Nunito_700Bold', fontSize: 13, textAlign: 'center' },
   cardDesc: { fontFamily: 'Nunito_400Regular', fontSize: 11, textAlign: 'center', marginTop: 4, lineHeight: 15 },
   earnedBadge: { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
-  stickerGrid: { paddingHorizontal: 12, gap: 10 },
-  stickerCard: { flex: 1, borderRadius: 20, borderWidth: 2, padding: 12, alignItems: 'center', minHeight: 120 },
+  stickerScroll: { paddingHorizontal: 12 },
+  stickerGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  stickerCard: { width: '30.5%', borderRadius: 20, borderWidth: 2, padding: 12, alignItems: 'center', minHeight: 120 },
   stickerIconCircle: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
   stickerName: { fontFamily: 'Nunito_700Bold', fontSize: 12, textAlign: 'center' },
   stickerDesc: { fontFamily: 'Nunito_400Regular', fontSize: 10, textAlign: 'center', marginTop: 2, lineHeight: 14 },

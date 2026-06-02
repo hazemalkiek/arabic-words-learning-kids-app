@@ -1,0 +1,27 @@
+kind = "mobile"
+previewPath = "/"
+title = "عربي - Arabic for Kids"
+version = "1.0.0"
+id = "artifacts/arabi-kids"
+router = "expo-domain"
+
+[[integratedSkills]]
+name = "expo"
+version = "1.0.0"
+
+[[services]]
+ensurePreviewReachable = "/status"
+name = "expo"
+paths = [ "/" ]
+localPort = 25256
+
+[services.development]
+run = "pnpm --filter @workspace/arabi-kids run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/arabi-kids", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/arabi-kids", "run", "serve" ]
+
+[services.env]
+PORT = "25256"
+BASE_PATH = "/"

@@ -1,0 +1,20 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "Cp9huOldJAIguZkNm4GMe"
+uri = "file://artifacts/arabi-kids/assets/images/icon.png"
+type = "image"
+title = "arabi kids mascot icon"
+
+[[generated]]
+id = "O0PZ1xPS2m6HagSYCpEYt"
+uri = "file://artifacts/arabi-kids/assets/images/animals_thumb.png"
+type = "image"
+title = "animals theme thumbnail"
+
+[[generated]]
+id = "FgTlxlPcrsGVy2yDnoRRF"
+uri = "file://artifacts/arabi-kids/assets/images/food_thumb.png"
+type = "image"
+title = "food theme thumbnail"

@@ -9,6 +9,7 @@ import * as Haptics from 'expo-haptics';
 import { useResponsive } from '@/hooks/useResponsive';
 
 const FEEDBACK_KEY = '@arabi_kids_feedback';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxtNWoZCKXSIZIJU7pd-Oa3AiJ1kKFNXDIftIslmBcF47oTjjVIjtJvysjKlZsUlD9_nQ/exec';
 
 export function FeedbackModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const [rating, setRating] = useState(0);
@@ -24,12 +25,20 @@ export function FeedbackModal({ visible, onClose }: { visible: boolean; onClose:
     if (rating === 0) return;
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     const entry = { rating, text: text.trim(), date: new Date().toISOString() };
-    try {
-      const existing = await AsyncStorage.getItem(FEEDBACK_KEY);
-      const arr = existing ? JSON.parse(existing) : [];
-      arr.push(entry);
-      await AsyncStorage.setItem(FEEDBACK_KEY, JSON.stringify(arr));
-    } catch (_) {}
+
+    await Promise.allSettled([
+      AsyncStorage.getItem(FEEDBACK_KEY).then(existing => {
+        const arr = existing ? JSON.parse(existing) : [];
+        arr.push(entry);
+        return AsyncStorage.setItem(FEEDBACK_KEY, JSON.stringify(arr));
+      }),
+      fetch(SHEETS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(entry),
+      }),
+    ]);
+
     setSubmitted(true);
     setTimeout(handleClose, 2200);
   };

@@ -215,23 +215,31 @@ export default function LearnGameScreen() {
       {/* Word Card */}
       <View style={styles.cardContainer}>
         <Animated.View style={[styles.wordCard, cardStyle]}>
-          {/* Illustration */}
-          <View style={[styles.iconCircle, { backgroundColor: currentWord.color + '22' }]}>
-            {currentWord.theme === 'colors' ? (
-              <View style={[styles.colorCircle, { backgroundColor: currentWord.color }]} />
-            ) : (
-              <>
-                <Image
-                  source={THEME_IMAGES[currentWord.theme]}
-                  style={styles.themeImage}
-                  resizeMode="contain"
-                />
-                <View style={styles.iconBadge}>
-                  <MaterialCommunityIcons name={currentWord.icon as any} size={22} color={currentWord.color} />
-                </View>
-              </>
-            )}
-          </View>
+          {/* Illustration / Photo */}
+          {currentWord.photoUrl ? (
+            <Image
+              source={{ uri: currentWord.photoUrl }}
+              style={styles.wordPhoto}
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={[styles.iconCircle, { backgroundColor: currentWord.color + '22' }]}>
+              {currentWord.theme === 'colors' ? (
+                <View style={[styles.colorCircle, { backgroundColor: currentWord.color }]} />
+              ) : (
+                <>
+                  <Image
+                    source={THEME_IMAGES[currentWord.theme]}
+                    style={styles.themeImage}
+                    resizeMode="contain"
+                  />
+                  <View style={styles.iconBadge}>
+                    <MaterialCommunityIcons name={currentWord.icon as any} size={22} color={currentWord.color} />
+                  </View>
+                </>
+              )}
+            </View>
+          )}
 
           {/* English */}
           <Text style={styles.englishWord}>{currentWord.english}</Text>
@@ -283,6 +291,7 @@ const styles = StyleSheet.create({
   counter: { fontFamily: 'Nunito_700Bold', fontSize: 14, color: '#8A7E74', minWidth: 36, textAlign: 'right' },
   cardContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 },
   wordCard: { backgroundColor: '#FFFFFF', borderRadius: 32, padding: 32, width: '100%', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.1, shadowRadius: 20, elevation: 8 },
+  wordPhoto: { width: 160, height: 160, borderRadius: 24, marginBottom: 20 },
   iconCircle: { width: 160, height: 160, borderRadius: 80, alignItems: 'center', justifyContent: 'center', marginBottom: 20 },
   colorCircle: { width: 90, height: 90, borderRadius: 45 },
   themeImage: { width: 120, height: 120, borderRadius: 12 },

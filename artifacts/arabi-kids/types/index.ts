@@ -11,7 +11,8 @@ export interface Word {
   difficulty: Difficulty;
   icon: string;
   color: string;
-  imagePath?: string; // optional photo/illustration asset
+  imagePath?: string;
+  photoUrl?: string; // word-specific photo (Unsplash)
 }
 
 export interface WordProgress {
@@ -80,5 +81,5 @@ export const DIFFICULTIES: { id: Difficulty; label: string; arabicLabel: string;
   { id: 'advanced', label: 'Advanced', arabicLabel: 'متقدم', stars: 3 },
 ];
 
-export const AVATAR_ICONS = ['star-four-points', 'rocket', 'crown', 'lightning-bolt', 'heart', 'diamond', 'moon-full', 'sun'];
+export const AVATAR_ICONS = ['star-four-points', 'rocket', 'crown', 'lightning-bolt', 'heart', 'diamond', 'moon-full', 'weather-sunny'];
 export const AVATAR_COLORS = ['#FFD700', '#FF6B35', '#9B5DE5', '#00BBF9', '#FF4D9E', '#4ECDC4', '#6BCB77', '#FF8B42'];

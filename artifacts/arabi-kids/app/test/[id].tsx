@@ -43,8 +43,13 @@ function OptionButton({ word, onPress, state }: { word: Word; onPress: () => voi
   const bg = state === 'correct' ? '#6BCB77' : state === 'wrong' ? '#FF6B6B' : state === 'reveal' ? '#FFD700' : '#FFFFFF';
   const textColor = state !== 'idle' ? '#FFFFFF' : '#1A1A2E';
 
+  const speakOption = () => {
+    Speech.stop();
+    Speech.speak(word.arabic, { language: 'ar-SA', rate: 0.6, pitch: 1.0 });
+  };
+
   return (
-    <Animated.View style={animStyle}>
+    <Animated.View style={[animStyle, { position: 'relative' }]}>
       <TouchableOpacity
         onPress={onPress}
         disabled={state !== 'idle'}
@@ -56,6 +61,13 @@ function OptionButton({ word, onPress, state }: { word: Word; onPress: () => voi
         {state === 'correct' && <MaterialCommunityIcons name="check-circle" size={24} color="#FFFFFF" style={styles.optionIcon} />}
         {state === 'wrong' && <MaterialCommunityIcons name="close-circle" size={24} color="#FFFFFF" style={styles.optionIcon} />}
         {state === 'reveal' && <MaterialCommunityIcons name="star" size={24} color="#FFFFFF" style={styles.optionIcon} />}
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.optionSpeakerBtn} onPress={speakOption}>
+        <MaterialCommunityIcons
+          name="volume-high"
+          size={15}
+          color={state !== 'idle' ? 'rgba(255,255,255,0.9)' : '#9B5DE5'}
+        />
       </TouchableOpacity>
     </Animated.View>
   );
@@ -271,22 +283,30 @@ export default function TestGameScreen() {
 
       {/* Word Display */}
       <View style={styles.wordDisplay}>
-        <View style={[styles.wordIconCircle, { backgroundColor: currentWord.color + '20' }]}>
-          {currentWord.theme === 'colors' ? (
-            <View style={[styles.colorCircle, { backgroundColor: currentWord.color }]} />
-          ) : (
-            <>
-              <Image
-                source={THEME_IMAGES[currentWord.theme]}
-                style={styles.themeImage}
-                resizeMode="contain"
-              />
-              <View style={styles.iconBadge}>
-                <MaterialCommunityIcons name={currentWord.icon as any} size={20} color={currentWord.color} />
-              </View>
-            </>
-          )}
-        </View>
+        {currentWord.photoUrl ? (
+          <Image
+            source={{ uri: currentWord.photoUrl }}
+            style={styles.wordPhoto}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={[styles.wordIconCircle, { backgroundColor: currentWord.color + '20' }]}>
+            {currentWord.theme === 'colors' ? (
+              <View style={[styles.colorCircle, { backgroundColor: currentWord.color }]} />
+            ) : (
+              <>
+                <Image
+                  source={THEME_IMAGES[currentWord.theme]}
+                  style={styles.themeImage}
+                  resizeMode="contain"
+                />
+                <View style={styles.iconBadge}>
+                  <MaterialCommunityIcons name={currentWord.icon as any} size={20} color={currentWord.color} />
+                </View>
+              </>
+            )}
+          </View>
+        )}
         <Text style={styles.wordEnglish}>{currentWord.english}</Text>
         <View style={styles.hearRow}>
           <TouchableOpacity
@@ -334,7 +354,9 @@ const styles = StyleSheet.create({
   scoreRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 8 },
   scoreLabel: { fontFamily: 'Nunito_700Bold', fontSize: 16, color: '#9B5DE5' },
   wordDisplay: { alignItems: 'center', paddingHorizontal: 20, paddingBottom: 16 },
+  wordPhoto: { width: 140, height: 140, borderRadius: 20, marginBottom: 12 },
   wordIconCircle: { width: 140, height: 140, borderRadius: 70, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
+  optionSpeakerBtn: { position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', zIndex: 10 },
   colorCircle: { width: 80, height: 80, borderRadius: 40 },
   themeImage: { width: 110, height: 110, borderRadius: 12 },
   iconBadge: { position: 'absolute', bottom: 6, right: 6, backgroundColor: '#FFF', borderRadius: 14, padding: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.12, shadowRadius: 4, elevation: 3 },

@@ -6,7 +6,7 @@ export const STICKERS: Sticker[] = [
   { id: 'sticker-nour', name: 'Nour Friend', description: 'Met your mascot Nour', icon: 'star-four-points', color: '#FFB800', condition: (p) => Object.keys(p.progress).length >= 1 },
   // Animal stickers
   { id: 'sticker-cat', name: 'Cat Fan', description: 'Learned the word cat (قطة)', icon: 'cat', color: '#FF8B42', condition: (p) => !!p.progress['an-cat']?.seen },
-  { id: 'sticker-lion', name: 'Lion Heart', description: 'Learned the word lion (أسد)', icon: 'lion', color: '#F9C74F', condition: (p) => !!p.progress['an-lion']?.seen },
+  { id: 'sticker-lion', name: 'Lion Heart', description: 'Learned the word lion (أسد)', icon: 'paw', color: '#F9C74F', condition: (p) => !!p.progress['an-lion']?.seen },
   { id: 'sticker-butterfly', name: 'Social Butterfly', description: 'Learned the word butterfly (فراشة)', icon: 'butterfly', color: '#FF4D9E', condition: (p) => !!p.progress['an-butterfly']?.seen },
   // Nature stickers
   { id: 'sticker-sun', name: 'Sunshine', description: 'Learned the word sun (شمس)', icon: 'weather-sunny', color: '#FFD700', condition: (p) => !!p.progress['na-sun']?.seen },

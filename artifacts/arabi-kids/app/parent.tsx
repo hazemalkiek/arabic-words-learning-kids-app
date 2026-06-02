@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
-  Platform, Modal, TextInput,
+  Platform, Modal,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -10,9 +10,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { useApp } from '@/context/AppContext';
 import { AVATAR_ICONS, AVATAR_COLORS, THEMES, DIFFICULTIES } from '@/types';
+import { FeedbackModal } from '@/components/FeedbackModal';
 
 const PIN_KEY = '@arabi_kids_pin';
-const FEEDBACK_KEY = '@arabi_kids_feedback';
 const DEFAULT_PIN = '1234';
 const PAD_KEYS = ['1','2','3','4','5','6','7','8','9','','0','⌫'];
 
@@ -91,108 +91,6 @@ function ChangePinModal({ visible, onClose, onSave }: { visible: boolean; onClos
           <TouchableOpacity onPress={handleClose} style={styles.cancelLink}>
             <Text style={styles.cancelLinkText}>Cancel</Text>
           </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
-  );
-}
-
-function FeedbackModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
-  const [rating, setRating] = useState(0);
-  const [hovered, setHovered] = useState(0);
-  const [text, setText] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-
-  const reset = () => { setRating(0); setHovered(0); setText(''); setSubmitted(false); };
-  const handleClose = () => { reset(); onClose(); };
-
-  const handleSubmit = async () => {
-    if (rating === 0) return;
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    const entry = { rating, text: text.trim(), date: new Date().toISOString() };
-    try {
-      const existing = await AsyncStorage.getItem(FEEDBACK_KEY);
-      const arr = existing ? JSON.parse(existing) : [];
-      arr.push(entry);
-      await AsyncStorage.setItem(FEEDBACK_KEY, JSON.stringify(arr));
-    } catch (_) {}
-    setSubmitted(true);
-    setTimeout(handleClose, 2200);
-  };
-
-  const displayRating = hovered || rating;
-
-  return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
-      <View style={fbStyles.overlay}>
-        <View style={fbStyles.sheet}>
-          <TouchableOpacity onPress={handleClose} style={fbStyles.closeBtn}>
-            <MaterialCommunityIcons name="close" size={22} color="#8A7E74" />
-          </TouchableOpacity>
-
-          {submitted ? (
-            <View style={fbStyles.thanksBox}>
-              <MaterialCommunityIcons name="heart" size={56} color="#FF4D9E" />
-              <Text style={fbStyles.thanksTitle}>Thank you! 🎉</Text>
-              <Text style={fbStyles.thanksSub}>Your feedback helps us improve Arabi for kids everywhere.</Text>
-            </View>
-          ) : (
-            <>
-              <MaterialCommunityIcons name="message-text-outline" size={36} color="#FF6B35" style={{ marginBottom: 6 }} />
-              <Text style={fbStyles.title}>Share Feedback</Text>
-              <Text style={fbStyles.sub}>How are you enjoying Arabi?</Text>
-
-              <View style={fbStyles.starsRow}>
-                {[1,2,3,4,5].map(star => (
-                  <TouchableOpacity
-                    key={star}
-                    onPress={() => { setRating(star); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
-                    onPressIn={() => setHovered(star)}
-                    onPressOut={() => setHovered(0)}
-                    activeOpacity={0.7}
-                    style={fbStyles.starBtn}
-                  >
-                    <MaterialCommunityIcons
-                      name={star <= displayRating ? 'star' : 'star-outline'}
-                      size={40}
-                      color={star <= displayRating ? '#FFD700' : '#D0C8BE'}
-                    />
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              {rating > 0 && (
-                <Text style={fbStyles.ratingLabel}>
-                  {['', 'Poor 😕', 'Fair 🙂', 'Good 😊', 'Great 😄', 'Amazing! 🌟'][rating]}
-                </Text>
-              )}
-
-              <TextInput
-                style={fbStyles.textBox}
-                placeholder="Any thoughts, ideas or suggestions? (optional)"
-                placeholderTextColor="#BBB0A4"
-                multiline
-                numberOfLines={4}
-                value={text}
-                onChangeText={setText}
-                textAlignVertical="top"
-              />
-
-              <TouchableOpacity
-                style={[fbStyles.submitBtn, rating === 0 && fbStyles.submitDisabled]}
-                onPress={handleSubmit}
-                disabled={rating === 0}
-                activeOpacity={0.85}
-              >
-                <MaterialCommunityIcons name="send" size={18} color="#FFF" />
-                <Text style={fbStyles.submitLabel}>Send Feedback</Text>
-              </TouchableOpacity>
-
-              {rating === 0 && (
-                <Text style={fbStyles.ratingHint}>Please select a star rating to continue</Text>
-              )}
-            </>
-          )}
         </View>
       </View>
     </Modal>
@@ -474,21 +372,3 @@ const pinStyles = StyleSheet.create({
   padKeyText: { fontFamily: 'Nunito_700Bold', fontSize: 24, color: '#1A1A2E' },
 });
 
-const fbStyles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },
-  sheet: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 28, paddingBottom: 40, alignItems: 'center' },
-  closeBtn: { position: 'absolute', top: 18, right: 20, width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
-  title: { fontFamily: 'Nunito_800ExtraBold', fontSize: 24, color: '#1A1A2E', marginBottom: 4 },
-  sub: { fontFamily: 'Nunito_600SemiBold', fontSize: 15, color: '#8A7E74', marginBottom: 20, textAlign: 'center' },
-  starsRow: { flexDirection: 'row', gap: 6, marginBottom: 8 },
-  starBtn: { padding: 4 },
-  ratingLabel: { fontFamily: 'Nunito_700Bold', fontSize: 16, color: '#FF6B35', marginBottom: 16, height: 22 },
-  textBox: { width: '100%', minHeight: 110, backgroundColor: '#FFF8F0', borderRadius: 16, borderWidth: 1.5, borderColor: '#F0E8DC', padding: 14, fontFamily: 'Nunito_400Regular', fontSize: 15, color: '#1A1A2E', marginBottom: 18, marginTop: 4 },
-  submitBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#FF6B35', borderRadius: 18, paddingVertical: 14, paddingHorizontal: 32, width: '100%' },
-  submitDisabled: { backgroundColor: '#F0E8DC' },
-  submitLabel: { fontFamily: 'Nunito_700Bold', fontSize: 16, color: '#FFF' },
-  ratingHint: { fontFamily: 'Nunito_400Regular', fontSize: 13, color: '#BBAA99', marginTop: 10 },
-  thanksBox: { alignItems: 'center', paddingVertical: 24, gap: 12 },
-  thanksTitle: { fontFamily: 'Nunito_800ExtraBold', fontSize: 28, color: '#1A1A2E' },
-  thanksSub: { fontFamily: 'Nunito_600SemiBold', fontSize: 15, color: '#8A7E74', textAlign: 'center', lineHeight: 22 },
-});

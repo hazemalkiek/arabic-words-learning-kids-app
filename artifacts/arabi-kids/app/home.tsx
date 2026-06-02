@@ -9,6 +9,7 @@ import { useApp } from '@/context/AppContext';
 import { MascotCharacter } from '@/components/MascotCharacter';
 import { AVATAR_ICONS, AVATAR_COLORS } from '@/types';
 import { WORDS } from '@/constants/words';
+import { FeedbackModal } from '@/components/FeedbackModal';
 
 const MODE_CARDS = [
   { id: 'learn', label: 'Learn', arabicLabel: 'تعلَّم', icon: 'book-open-variant', color: '#FF6B35', bg: '#FFF0E8', desc: 'Discover new Arabic words' },
@@ -21,6 +22,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { activeProfile, setActiveProfileId, updateStreak } = useApp();
   const [showStreakRecovery, setShowStreakRecovery] = React.useState(false);
+  const [showFeedback, setShowFeedback] = React.useState(false);
 
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPad = Platform.OS === 'web' ? 34 : insets.bottom;
@@ -149,8 +151,18 @@ export default function HomeScreen() {
         <TouchableOpacity style={styles.parentBtn} onPress={() => router.push('/parent')}>
           <MaterialCommunityIcons name="shield-account" size={20} color="#8A7E74" />
           <Text style={styles.parentBtnText}>Parent Zone</Text>
+          <MaterialCommunityIcons name="chevron-right" size={16} color="#BBAA99" />
+        </TouchableOpacity>
+
+        {/* Feedback */}
+        <TouchableOpacity style={styles.feedbackBtn} onPress={() => setShowFeedback(true)}>
+          <MaterialCommunityIcons name="message-text-outline" size={20} color="#FF6B35" />
+          <Text style={styles.feedbackBtnText}>Feedback & Suggestions</Text>
+          <MaterialCommunityIcons name="chevron-right" size={16} color="#BBAA99" />
         </TouchableOpacity>
       </ScrollView>
+
+      <FeedbackModal visible={showFeedback} onClose={() => setShowFeedback(false)} />
     </View>
   );
 }
@@ -182,8 +194,10 @@ const styles = StyleSheet.create({
   trophyBtnText: { fontFamily: 'Nunito_700Bold', fontSize: 18, color: '#1A1A2E', flex: 1 },
   trophyBadge: { backgroundColor: '#FFD700', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 3 },
   trophyBadgeText: { fontFamily: 'Nunito_800ExtraBold', fontSize: 14, color: '#1A1A2E' },
-  parentBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 20, paddingVertical: 12 },
-  parentBtnText: { fontFamily: 'Nunito_600SemiBold', fontSize: 15, color: '#8A7E74' },
+  parentBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 20, paddingVertical: 12, paddingHorizontal: 4 },
+  parentBtnText: { fontFamily: 'Nunito_600SemiBold', fontSize: 15, color: '#8A7E74', flex: 1 },
+  feedbackBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 4, marginTop: 2, marginBottom: 8 },
+  feedbackBtnText: { fontFamily: 'Nunito_600SemiBold', fontSize: 15, color: '#FF6B35', flex: 1 },
   streakRecoveryBanner: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#FFF0E8', borderRadius: 20, padding: 16, marginBottom: 20, borderLeftWidth: 4, borderLeftColor: '#FF6B35' },
   streakRecoveryEmoji: { fontSize: 28 },
   streakRecoveryTitle: { fontFamily: 'Nunito_700Bold', fontSize: 16, color: '#FF6B35' },

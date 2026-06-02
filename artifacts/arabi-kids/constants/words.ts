@@ -90,21 +90,21 @@ const RAW_WORDS: Omit<Word, 'imagePath'>[] = [
   { id: 'ho-mirror',   english: 'Mirror',     arabic: 'مِرْآة',   transliteration: "mir'aah", theme: 'home', difficulty: 'advanced',     icon: 'mirror',             color: '#B0BEC5', photoUrl: U('1507003211169-0a1dd7228f2d') },
 
   // ─── BODY ──────────────────────────────────────────────────────────────────
-  { id: 'bo-eye',      english: 'Eye',      arabic: 'عَيْن',    transliteration: "'ayn",    theme: 'body', difficulty: 'beginner',     icon: 'eye',             color: '#00BBF9', photoUrl: U('1561037280-173a23d28f87') },
+  { id: 'bo-eye',      english: 'Eye',      arabic: 'عَيْن',    transliteration: "'ayn",    theme: 'body', difficulty: 'beginner',     icon: 'eye',             color: '#00BBF9', photoUrl: U('1561265990-ba14c09c0dfe') },
   { id: 'bo-nose',     english: 'Nose',     arabic: 'أَنْف',    transliteration: 'anf',     theme: 'body', difficulty: 'beginner',     icon: 'nose',            color: '#FF8B42', photoUrl: U('1498558250498-bb360ec9fcf3') },
   { id: 'bo-hand',     english: 'Hand',     arabic: 'يَد',      transliteration: 'yad',     theme: 'body', difficulty: 'beginner',     icon: 'hand-back-right', color: '#FF6B6B', photoUrl: U('1567225557620-f8b4e4d3cfa3') },
   { id: 'bo-foot',     english: 'Foot',     arabic: 'قَدَم',    transliteration: 'qadam',   theme: 'body', difficulty: 'beginner',     icon: 'foot-print',      color: '#8B5E3C', photoUrl: U('1473263780248-eedf8f7e9af8') },
   { id: 'bo-head',     english: 'Head',     arabic: 'رَأْس',    transliteration: "ra's",    theme: 'body', difficulty: 'beginner',     icon: 'head',            color: '#F9C74F', photoUrl: U('1500648767791-00dcc994a43e') },
   { id: 'bo-ear',      english: 'Ear',      arabic: 'أُذُن',    transliteration: 'udhun',   theme: 'body', difficulty: 'intermediate', icon: 'ear-hearing',     color: '#FF4D9E', photoUrl: U('1516876467961-f13cc5c7a28f') },
   { id: 'bo-mouth',    english: 'Mouth',    arabic: 'فَم',      transliteration: 'fam',     theme: 'body', difficulty: 'intermediate', icon: 'tooth',           color: '#FFFFFF', photoUrl: U('1531746020798-e6953c6e8e04') },
-  { id: 'bo-heart',    english: 'Heart',    arabic: 'قَلْب',    transliteration: 'qalb',    theme: 'body', difficulty: 'intermediate', icon: 'heart',           color: '#E84848', photoUrl: U('1628771065518-0d82f1938462') },
+  { id: 'bo-heart',    english: 'Heart',    arabic: 'قَلْب',    transliteration: 'qalb',    theme: 'body', difficulty: 'intermediate', icon: 'heart',           color: '#E84848', photoUrl: U('1530026341218-8e3d0b803ca6') },
   { id: 'bo-hair',     english: 'Hair',     arabic: 'شَعْر',    transliteration: "sha'r",   theme: 'body', difficulty: 'intermediate', icon: 'head',            color: '#5D4037', photoUrl: U('1562322140-8baeececf3df') },
-  { id: 'bo-finger',   english: 'Finger',   arabic: 'إِصْبَع',  transliteration: 'isba\'',  theme: 'body', difficulty: 'intermediate', icon: 'fingerprint',     color: '#9B5DE5', photoUrl: U('1567225557620-f8b4e4d3cfa3') },
-  { id: 'bo-shoulder', english: 'Shoulder', arabic: 'كَتِف',    transliteration: 'katif',   theme: 'body', difficulty: 'advanced',     icon: 'human-handsdown', color: '#6BCB77', photoUrl: U('1571019613454-1cb2f99b2d8b') },
-  { id: 'bo-knee',     english: 'Knee',     arabic: 'رُكْبَة',  transliteration: 'rukba',   theme: 'body', difficulty: 'advanced',     icon: 'human',           color: '#FF6B35', photoUrl: U('1571019613454-1cb2f99b2d8b') },
-  { id: 'bo-back',     english: 'Back',     arabic: 'ظَهْر',    transliteration: 'dhahr',   theme: 'body', difficulty: 'advanced',     icon: 'human-male',      color: '#00BBF9', photoUrl: U('1571019613454-1cb2f99b2d8b') },
-  { id: 'bo-cheek',    english: 'Cheek',    arabic: 'خَدّ',     transliteration: 'khadd',   theme: 'body', difficulty: 'advanced',     icon: 'emoticon',        color: '#FF4D9E', photoUrl: U('1531746020798-e6953c6e8e04') },
-  { id: 'bo-forehead', english: 'Forehead', arabic: 'جَبْهَة',  transliteration: 'jabha',   theme: 'body', difficulty: 'advanced',     icon: 'head-outline',    color: '#F9C74F', photoUrl: U('1500648767791-00dcc994a43e') },
+  { id: 'bo-finger',   english: 'Finger',   arabic: 'إِصْبَع',  transliteration: 'isba\'',  theme: 'body', difficulty: 'intermediate', icon: 'fingerprint',     color: '#9B5DE5', photoUrl: U('1664392456139-a2fe4b3879f0') },
+  { id: 'bo-shoulder', english: 'Shoulder', arabic: 'كَتِف',    transliteration: 'katif',   theme: 'body', difficulty: 'advanced',     icon: 'human-handsdown', color: '#6BCB77', photoUrl: U('1671717724869-bc8641046098') },
+  { id: 'bo-knee',     english: 'Knee',     arabic: 'رُكْبَة',  transliteration: 'rukba',   theme: 'body', difficulty: 'advanced',     icon: 'human',           color: '#FF6B35', photoUrl: U('1668767654063-a0c17be1a71a') },
+  { id: 'bo-back',     english: 'Back',     arabic: 'ظَهْر',    transliteration: 'dhahr',   theme: 'body', difficulty: 'advanced',     icon: 'human-male',      color: '#00BBF9', photoUrl: U('1658464320671-229da14f781f') },
+  { id: 'bo-cheek',    english: 'Cheek',    arabic: 'خَدّ',     transliteration: 'khadd',   theme: 'body', difficulty: 'advanced',     icon: 'emoticon',        color: '#FF4D9E', photoUrl: U('1678557856807-7ae6ff6893d1') },
+  { id: 'bo-forehead', english: 'Forehead', arabic: 'جَبْهَة',  transliteration: 'jabha',   theme: 'body', difficulty: 'advanced',     icon: 'head-outline',    color: '#F9C74F', photoUrl: U('1761397681430-c5901f37d1c3') },
 
   // ─── NATURE ────────────────────────────────────────────────────────────────
   { id: 'na-sun',      english: 'Sun',      arabic: 'شَمْس',    transliteration: 'shams',   theme: 'nature', difficulty: 'beginner',     icon: 'weather-sunny',   color: '#FFD700', photoUrl: U('1504701954957-2010ec3bcec1') },
@@ -119,7 +119,7 @@ const RAW_WORDS: Omit<Word, 'imagePath'>[] = [
   { id: 'na-river',    english: 'River',    arabic: 'نَهْر',    transliteration: 'nahr',    theme: 'nature', difficulty: 'intermediate', icon: 'water',           color: '#4FC3F7', photoUrl: U('1504194104404-433180773017') },
   { id: 'na-fire',     english: 'Fire',     arabic: 'نَار',     transliteration: 'naar',    theme: 'nature', difficulty: 'advanced',     icon: 'fire',            color: '#FF6B35', photoUrl: U('1516362248-18f56ded576d') },
   { id: 'na-earth',    english: 'Earth',    arabic: 'أَرْض',    transliteration: 'ard',     theme: 'nature', difficulty: 'advanced',     icon: 'earth',           color: '#4CAF50', photoUrl: U('1446329360995-b4642a139973') },
-  { id: 'na-wind',     english: 'Wind',     arabic: 'رِيح',     transliteration: 'riyh',    theme: 'nature', difficulty: 'advanced',     icon: 'weather-windy',   color: '#B0BEC5', photoUrl: U('1500534314209-a25ddb2bd429') },
+  { id: 'na-wind',     english: 'Wind',     arabic: 'رِيح',     transliteration: 'riyh',    theme: 'nature', difficulty: 'advanced',     icon: 'weather-windy',   color: '#B0BEC5', photoUrl: U('1691492268226-0ec5003e9b26') },
   { id: 'na-snow',     english: 'Snow',     arabic: 'ثَلْج',    transliteration: 'thalj',   theme: 'nature', difficulty: 'advanced',     icon: 'snowflake',       color: '#E3F2FD', photoUrl: U('1491002052546-bf38f186af56') },
   { id: 'na-desert',   english: 'Desert',   arabic: 'صَحْرَاء', transliteration: 'sahraa',  theme: 'nature', difficulty: 'advanced',     icon: 'terrain',         color: '#F9C74F', photoUrl: U('1509316785289-025f5b846b35') },
 
@@ -138,7 +138,7 @@ const RAW_WORDS: Omit<Word, 'imagePath'>[] = [
   { id: 'cl-ring',     english: 'Ring',     arabic: 'خَاتَم',   transliteration: 'khaatam', theme: 'clothes', difficulty: 'advanced',     icon: 'ring',          color: '#FFD700', photoUrl: U('1605100804763-247f67b3557e') },
   { id: 'cl-necklace', english: 'Necklace', arabic: 'عِقْد',    transliteration: "'iqd",    theme: 'clothes', difficulty: 'advanced',     icon: 'necklace',      color: '#FFD700', photoUrl: U('1515777755136-e3ff977ec1a3') },
   { id: 'cl-gloves',   english: 'Gloves',   arabic: 'قُفَّازَات',transliteration: 'quffazat',theme: 'clothes', difficulty: 'advanced',     icon: 'ski',           color: '#E84848', photoUrl: U('1561693532-bec4cba4e24e') },
-  { id: 'cl-boots',    english: 'Boots',    arabic: 'جَزْمَة',  transliteration: 'jazma',   theme: 'clothes', difficulty: 'advanced',     icon: 'shoe-heel',     color: '#5D4037', photoUrl: U('1542291026-7eec264c27ff') },
+  { id: 'cl-boots',    english: 'Boots',    arabic: 'جَزْمَة',  transliteration: 'jazma',   theme: 'clothes', difficulty: 'advanced',     icon: 'shoe-heel',     color: '#5D4037', photoUrl: U('1511283402428-355853756676') },
 ];
 
 export const WORDS: Word[] = RAW_WORDS.map(w => ({

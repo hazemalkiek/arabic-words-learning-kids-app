@@ -71,6 +71,10 @@ export default function ExploreCategoryScreen() {
           <TouchableOpacity style={styles.wordCard} onPress={() => handleWordPress(word)} activeOpacity={0.85}>
             {word.theme === 'colors' ? (
               <View style={[styles.colorCircle, { backgroundColor: word.color }]} />
+            ) : word.theme === 'numbers' ? (
+              <View style={[styles.numberCircle, { backgroundColor: word.color + '18' }]}>
+                <Text style={[styles.numeralText, { color: word.color }]}>{word.icon}</Text>
+              </View>
             ) : word.photoUrl ? (
               <Image source={{ uri: word.photoUrl }} style={styles.cardImg} resizeMode="cover" />
             ) : (
@@ -97,6 +101,8 @@ export default function ExploreCategoryScreen() {
               <View style={[styles.modalIconCircle, { backgroundColor: (selectedWord?.color ?? '#FF6B35') + '22' }]}>
                 {selectedWord?.theme === 'colors' ? (
                   <View style={[styles.colorCircleLg, { backgroundColor: selectedWord?.color }]} />
+                ) : selectedWord?.theme === 'numbers' ? (
+                  <Text style={[styles.numeralTextLg, { color: selectedWord.color }]}>{selectedWord.icon}</Text>
                 ) : selectedWord ? (
                   <>
                     <Image source={THEME_IMAGES[selectedWord.theme]} style={styles.modalImg} resizeMode="contain" />
@@ -141,6 +147,9 @@ const styles = StyleSheet.create({
   grid: { padding: 12, gap: 10, paddingBottom: 40 },
   wordCard: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: 18, padding: 12, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 6, elevation: 2, minHeight: 110 },
   colorCircle: { width: 40, height: 40, borderRadius: 20 },
+  numberCircle: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  numeralText: { fontFamily: 'Nunito_800ExtraBold', fontSize: 20, textAlign: 'center' },
+  numeralTextLg: { fontFamily: 'Nunito_800ExtraBold', fontSize: 52, textAlign: 'center' },
   cardImgWrap: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   cardImg: { width: 44, height: 44, borderRadius: 10 },
   modalPhoto: { width: 150, height: 150, borderRadius: 24, marginBottom: 16 },

@@ -294,6 +294,8 @@ export default function TestGameScreen() {
           <View style={[styles.wordIconCircle, { backgroundColor: currentWord.color + '20' }]}>
             {currentWord.theme === 'colors' ? (
               <View style={[styles.colorCircle, { backgroundColor: currentWord.color }]} />
+            ) : currentWord.theme === 'numbers' ? (
+              <Text style={[styles.numeralText, { color: currentWord.color }]}>{currentWord.icon}</Text>
             ) : (
               <>
                 <Image
@@ -358,6 +360,7 @@ const styles = StyleSheet.create({
   wordPhoto: { width: 140, height: 140, borderRadius: 20, marginBottom: 12 },
   wordIconCircle: { width: 140, height: 140, borderRadius: 70, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
   colorCircle: { width: 80, height: 80, borderRadius: 40 },
+  numeralText: { fontFamily: 'Nunito_800ExtraBold', fontSize: 64, textAlign: 'center' },
   themeImage: { width: 110, height: 110, borderRadius: 12 },
   iconBadge: { position: 'absolute', bottom: 6, right: 6, backgroundColor: '#FFF', borderRadius: 14, padding: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.12, shadowRadius: 4, elevation: 3 },
   wordEnglish: { fontFamily: 'Nunito_800ExtraBold', fontSize: 30, color: '#1A1A2E', textAlign: 'center' },

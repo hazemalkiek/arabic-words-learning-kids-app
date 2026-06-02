@@ -228,6 +228,8 @@ export default function LearnGameScreen() {
             <View style={[styles.iconCircle, { backgroundColor: currentWord.color + '22' }]}>
               {currentWord.theme === 'colors' ? (
                 <View style={[styles.colorCircle, { backgroundColor: currentWord.color }]} />
+              ) : currentWord.theme === 'numbers' ? (
+                <Text style={[styles.numeralText, { color: currentWord.color }]}>{currentWord.icon}</Text>
               ) : (
                 <>
                   <Image
@@ -296,6 +298,7 @@ const styles = StyleSheet.create({
   wordPhoto: { width: 160, height: 160, borderRadius: 24, marginBottom: 20 },
   iconCircle: { width: 160, height: 160, borderRadius: 80, alignItems: 'center', justifyContent: 'center', marginBottom: 20 },
   colorCircle: { width: 90, height: 90, borderRadius: 45 },
+  numeralText: { fontFamily: 'Nunito_800ExtraBold', fontSize: 72, textAlign: 'center' },
   themeImage: { width: 120, height: 120, borderRadius: 12 },
   iconBadge: { position: 'absolute', bottom: 8, right: 8, backgroundColor: '#FFF', borderRadius: 16, padding: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.12, shadowRadius: 4, elevation: 3 },
   englishWord: { fontFamily: 'Nunito_700Bold', fontSize: 28, color: '#1A1A2E', textAlign: 'center' },

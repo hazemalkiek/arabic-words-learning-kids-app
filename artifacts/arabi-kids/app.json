@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "arabi-kids",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/images/icon.png",
       "resizeMode": "contain",
@@ -36,6 +36,11 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "7e08f525-84f6-4d34-9b01-25df893620da"
+      }
     }
   }
 }

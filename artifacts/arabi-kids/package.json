@@ -56,6 +56,6 @@
   },
   "dependencies": {
     "@expo-google-fonts/nunito": "^0.4.2",
-    "expo-speech": "^56.0.3"
+    "expo-speech": "~13.0.0"
   }
 }

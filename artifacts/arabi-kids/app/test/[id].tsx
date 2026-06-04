@@ -6,7 +6,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring, withSequence } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as Speech from 'expo-speech';
 import * as Haptics from 'expo-haptics';
 import { useApp } from '@/context/AppContext';
 import { ConfettiEffect } from '@/components/ConfettiEffect';
@@ -15,7 +14,7 @@ import { TROPHIES } from '@/constants/trophies';
 import { STICKERS } from '@/constants/stickers';
 import { Difficulty, Theme, Word } from '@/types';
 import { THEME_IMAGES } from '@/constants/images';
-import { playCorrect, playWrong, playLevelComplete, playUnlock } from '@/utils/soundEffects';
+import { playArabicById, speakEnglish, stopAudio, playCorrect, playWrong, playLevelComplete, playUnlock } from '@/utils/audioPlayer';
 import { useResponsive } from '@/hooks/useResponsive';
 
 function OptionButton({ word, onPress, state }: { word: Word; onPress: () => void; state: 'idle' | 'correct' | 'wrong' | 'reveal' }) {
@@ -44,10 +43,7 @@ function OptionButton({ word, onPress, state }: { word: Word; onPress: () => voi
   const bg = state === 'correct' ? '#6BCB77' : state === 'wrong' ? '#FF6B6B' : state === 'reveal' ? '#FFD700' : '#FFFFFF';
   const textColor = state !== 'idle' ? '#FFFFFF' : '#1A1A2E';
 
-  const speakOption = () => {
-    Speech.stop();
-    Speech.speak(word.arabic, { language: 'ar-SA', rate: 0.6, pitch: 1.0 });
-  };
+  const speakOption = () => { playArabicById(word.id); };
 
   const speakerBg = state === 'correct' ? '#5BB566' : state === 'wrong' ? '#E55555' : state === 'reveal' ? '#E6C000' : '#F3ECFF';
   const speakerColor = state !== 'idle' ? '#FFFFFF' : '#9B5DE5';
@@ -102,7 +98,7 @@ export default function TestGameScreen() {
   const cardScale = useSharedValue(1);
 
   useEffect(() => {
-    return () => { Speech.stop(); };
+    return () => { stopAudio(); };
   }, []);
 
   useEffect(() => {
@@ -121,8 +117,7 @@ export default function TestGameScreen() {
     progressAnim.value = withTiming((index + 1) / words.length, { duration: 400 });
     cardScale.value = withSpring(1, { damping: 14 });
     setTimeout(() => {
-      Speech.stop();
-      Speech.speak(word.english, { language: 'en', rate: 0.9 });
+      speakEnglish(word.english);
     }, 300);
   }
 
@@ -267,7 +262,7 @@ export default function TestGameScreen() {
       <ConfettiEffect active={showConfetti} />
       {/* Top bar */}
       <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => { Speech.stop(); router.back(); }} style={styles.closeBtn}>
+        <TouchableOpacity onPress={() => { stopAudio(); router.back(); }} style={styles.closeBtn}>
           <MaterialCommunityIcons name="close" size={26} color="#8A7E74" />
         </TouchableOpacity>
         <View style={styles.progressTrack}>
@@ -314,7 +309,7 @@ export default function TestGameScreen() {
         <View style={styles.hearRow}>
           <TouchableOpacity
             style={styles.hearBtn}
-            onPress={() => { Speech.stop(); Speech.speak(currentWord.english, { language: 'en', rate: 0.9 }); }}
+            onPress={() => speakEnglish(currentWord.english)}
           >
             <MaterialCommunityIcons name="volume-high" size={20} color="#9B5DE5" />
             <Text style={styles.hearLabel}>Hear it</Text>

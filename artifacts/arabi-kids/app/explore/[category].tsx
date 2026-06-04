@@ -5,7 +5,7 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as Speech from 'expo-speech';
+import { playArabicById, stopAudio } from '@/utils/audioPlayer';
 import * as Haptics from 'expo-haptics';
 import { useApp } from '@/context/AppContext';
 import { THEMES, Theme } from '@/types';
@@ -31,14 +31,11 @@ export default function ExploreCategoryScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setSelectedWord(word);
     markWordSeen(word.id);
-    setTimeout(() => {
-      Speech.stop();
-      Speech.speak(word.arabic, { language: 'ar-SA', rate: 0.6, pitch: 1.0 });
-    }, 200);
+    setTimeout(() => { playArabicById(word.id); }, 200);
   };
 
   const handleClose = () => {
-    Speech.stop();
+    stopAudio();
     setSelectedWord(null);
   };
 
@@ -119,8 +116,7 @@ export default function ExploreCategoryScreen() {
             <TouchableOpacity
               style={[styles.speakerBtn, { backgroundColor: (selectedWord?.color ?? '#FF6B35') + '22' }]}
               onPress={() => {
-                Speech.stop();
-                if (selectedWord) Speech.speak(selectedWord.arabic, { language: 'ar-SA', rate: 0.6, pitch: 1.0 });
+                if (selectedWord) playArabicById(selectedWord.id);
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               }}
             >

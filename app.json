@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "e5d4abf9-2950-4403-88f5-77004b12cabb"
+      }
+    },
+    "android": {
+      "package": "com.hazemalkiek.workspace"
+    }
+  }
+}

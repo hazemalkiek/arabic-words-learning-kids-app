@@ -6,7 +6,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring, FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as Speech from 'expo-speech';
 import * as Haptics from 'expo-haptics';
 import { useApp } from '@/context/AppContext';
 import { ConfettiEffect } from '@/components/ConfettiEffect';
@@ -15,7 +14,7 @@ import { TROPHIES } from '@/constants/trophies';
 import { STICKERS } from '@/constants/stickers';
 import { Difficulty, Theme } from '@/types';
 import { THEME_IMAGES } from '@/constants/images';
-import { playLevelComplete, playUnlock } from '@/utils/soundEffects';
+import { playArabicById, speakEnglish, stopAudio, playLevelComplete, playUnlock } from '@/utils/audioPlayer';
 import { useResponsive } from '@/hooks/useResponsive';
 
 function StarDisplay({ stars }: { stars: number }) {
@@ -57,17 +56,14 @@ export default function LearnGameScreen() {
   const cardOpacity = useSharedValue(0);
 
   useEffect(() => {
-    return () => { Speech.stop(); };
+    return () => { stopAudio(); };
   }, []);
 
   const revealArabic = useCallback((word: typeof words[0]) => {
     setRevealed(true);
     arabicOpacity.value = withTiming(1, { duration: 350 });
     arabicY.value = withSpring(0, { damping: 14 });
-    setTimeout(() => {
-      Speech.stop();
-      Speech.speak(word.arabic, { language: 'ar-SA', rate: 0.6, pitch: 1.0 });
-    }, 200);
+    setTimeout(() => { playArabicById(word.id); }, 200);
   }, []);
 
   const showWord = useCallback((index: number) => {
@@ -116,9 +112,7 @@ export default function LearnGameScreen() {
   };
 
   const handleSpeak = () => {
-    const word = words[currentIndex];
-    Speech.stop();
-    Speech.speak(word.arabic, { language: 'ar-SA', rate: 0.6, pitch: 1.0 });
+    playArabicById(words[currentIndex].id);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 

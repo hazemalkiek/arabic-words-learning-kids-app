@@ -6,7 +6,7 @@
  * English words always use expo-speech (no bundled files needed).
  */
 
-import { Audio } from 'expo-av';
+import { AudioPlayer } from 'expo-audio';
 import * as Speech from 'expo-speech';
 
 // Map each word/phrase id → require() call (static imports required by Metro)
@@ -146,31 +146,24 @@ const AUDIO_FILES: Record<string, number> = {
   'reward-unlock':         require('@/assets/audio/reward-unlock.m4a'),
 };
 
-let currentSound: Audio.Sound | null = null;
+let currentPlayer: AudioPlayer | null = null;
 
-async function stopCurrent() {
-  if (currentSound) {
-    try { await currentSound.stopAsync(); } catch {}
-    try { await currentSound.unloadAsync(); } catch {}
-    currentSound = null;
+function stopCurrent() {
+  if (currentPlayer) {
+    try { currentPlayer.remove(); } catch {}
+    currentPlayer = null;
   }
 }
 
 /** Play a bundled Arabic audio file by word ID */
-export async function playArabicById(id: string): Promise<void> {
-  await stopCurrent();
+export function playArabicById(id: string): void {
+  stopCurrent();
   const source = AUDIO_FILES[id];
-  if (!source) return; // no file for this id
+  if (!source) return;
   try {
-    await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
-    const { sound } = await Audio.Sound.createAsync(source, { shouldPlay: true });
-    currentSound = sound;
-    sound.setOnPlaybackStatusUpdate((status) => {
-      if (status.isLoaded && status.didJustFinish) {
-        sound.unloadAsync();
-        if (currentSound === sound) currentSound = null;
-      }
-    });
+    const player = new AudioPlayer(source);
+    currentPlayer = player;
+    player.play();
   } catch (e) {
     console.warn('[audioPlayer] playback error:', e);
   }
@@ -183,8 +176,8 @@ export function speakEnglish(text: string) {
 }
 
 /** Stop any currently playing audio */
-export async function stopAudio() {
-  await stopCurrent();
+export function stopAudio() {
+  stopCurrent();
   Speech.stop();
 }
 

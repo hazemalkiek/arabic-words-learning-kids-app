@@ -1,15 +1,15 @@
 /**
  * Arabic Audio Player
  *
- * Plays pre-recorded M4A files bundled in assets/audio/.
- * Falls back to expo-speech (device TTS) if the file isn't found.
- * English words always use expo-speech (no bundled files needed).
+ * Plays pre-recorded M4A files bundled in assets/audio/ using expo-audio.
+ * Falls back silently to expo-speech if playback fails.
+ * English always uses expo-speech (no bundled files needed).
  */
 
-import { AudioPlayer } from 'expo-audio';
+import { createAudioPlayer } from 'expo-audio';
 import * as Speech from 'expo-speech';
 
-// Map each word/phrase id → require() call (static imports required by Metro)
+// Static asset map — Metro requires static require() calls for bundled assets
 const AUDIO_FILES: Record<string, number> = {
   // Animals
   'an-cat':        require('@/assets/audio/an-cat.m4a'),
@@ -146,7 +146,21 @@ const AUDIO_FILES: Record<string, number> = {
   'reward-unlock':         require('@/assets/audio/reward-unlock.m4a'),
 };
 
-let currentPlayer: AudioPlayer | null = null;
+// Arabic text fallback map for expo-speech if bundled audio fails
+const ARABIC_TEXT: Record<string, string> = {
+  'an-cat': 'قطة', 'an-dog': 'كلب', 'an-fish': 'سمكة', 'an-bird': 'طائر',
+  'an-rabbit': 'أرنب', 'an-elephant': 'فيل', 'an-lion': 'أسد', 'an-horse': 'حصان',
+  'an-sheep': 'خروف', 'an-butterfly': 'فراشة', 'an-bee': 'نحلة', 'an-turtle': 'سلحفاة',
+  'an-monkey': 'قرد', 'an-frog': 'ضفدع', 'an-camel': 'جمل',
+  'fo-apple': 'تفاحة', 'fo-bread': 'خبز', 'fo-cake': 'كيكة', 'fo-egg': 'بيضة',
+  'fo-milk': 'حليب', 'fo-cheese': 'جبنة', 'fo-orange': 'برتقال', 'fo-banana': 'موزة',
+  'fo-rice': 'أرز', 'fo-tea': 'شاي', 'fo-coffee': 'قهوة', 'fo-chicken': 'دجاجة',
+  'fo-watermelon': 'بطيخ', 'fo-pizza': 'بيتزا', 'fo-grapes': 'عنب',
+  'reward-correct': 'ممتاز', 'reward-wrong': 'حاول مرة أخرى',
+  'reward-level-complete': 'رائع جداً', 'reward-unlock': 'مبروك',
+};
+
+let currentPlayer: ReturnType<typeof createAudioPlayer> | null = null;
 
 function stopCurrent() {
   if (currentPlayer) {
@@ -155,28 +169,40 @@ function stopCurrent() {
   }
 }
 
-/** Play a bundled Arabic audio file by word ID */
+/** Play a bundled Arabic audio file by word ID, falls back to TTS */
 export function playArabicById(id: string): void {
   stopCurrent();
   const source = AUDIO_FILES[id];
   if (!source) return;
   try {
-    const player = new AudioPlayer(source);
+    const player = createAudioPlayer(source);
     currentPlayer = player;
     player.play();
   } catch (e) {
-    console.warn('[audioPlayer] playback error:', e);
+    // Fallback to expo-speech if audio playback fails
+    const text = ARABIC_TEXT[id];
+    if (text) {
+      Speech.stop();
+      Speech.speak(text, { language: 'ar-SA', rate: 0.6, pitch: 1.0 });
+    }
   }
 }
 
-/** Play English word via TTS (device TTS is fine for English) */
-export function speakEnglish(text: string) {
+/** Speak Arabic text directly via TTS */
+export function speakArabic(text: string): void {
+  stopCurrent();
+  Speech.stop();
+  Speech.speak(text, { language: 'ar-SA', rate: 0.6, pitch: 1.0 });
+}
+
+/** Speak English text via TTS */
+export function speakEnglish(text: string): void {
   Speech.stop();
   Speech.speak(text, { language: 'en', rate: 0.9 });
 }
 
 /** Stop any currently playing audio */
-export function stopAudio() {
+export function stopAudio(): void {
   stopCurrent();
   Speech.stop();
 }

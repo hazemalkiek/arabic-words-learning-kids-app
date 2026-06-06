@@ -32,7 +32,6 @@
       "expo-router",
       "expo-font",
       "expo-web-browser",
-      "expo-audio",
       [
         "expo-build-properties",
         {

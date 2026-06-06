@@ -1,13 +1,13 @@
-/**
- * Arabic Audio Player
- *
- * Plays pre-recorded M4A files bundled in assets/audio/ using expo-audio.
- * Falls back silently to expo-speech if playback fails.
- * English always uses expo-speech (no bundled files needed).
- */
-
-import { createAudioPlayer } from 'expo-audio';
 import * as Speech from 'expo-speech';
+
+// Lazy load expo-audio so any native module failure doesn't crash the app
+let _createAudioPlayer: ((source: unknown) => { play(): void; remove(): void }) | null = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  _createAudioPlayer = require('expo-audio').createAudioPlayer;
+} catch {
+  _createAudioPlayer = null;
+}
 
 // Static asset map — Metro requires static require() calls for bundled assets
 const AUDIO_FILES: Record<string, number> = {
@@ -160,7 +160,7 @@ const ARABIC_TEXT: Record<string, string> = {
   'reward-level-complete': 'رائع جداً', 'reward-unlock': 'مبروك',
 };
 
-let currentPlayer: ReturnType<typeof createAudioPlayer> | null = null;
+let currentPlayer: { play(): void; remove(): void } | null = null;
 
 function stopCurrent() {
   if (currentPlayer) {
@@ -173,12 +173,20 @@ function stopCurrent() {
 export function playArabicById(id: string): void {
   stopCurrent();
   const source = AUDIO_FILES[id];
-  if (!source) return;
+  if (!source || !_createAudioPlayer) {
+    // No bundled audio or module unavailable — use TTS
+    const text = ARABIC_TEXT[id];
+    if (text) {
+      Speech.stop();
+      Speech.speak(text, { language: 'ar-SA', rate: 0.6, pitch: 1.0 });
+    }
+    return;
+  }
   try {
-    const player = createAudioPlayer(source);
+    const player = _createAudioPlayer(source);
     currentPlayer = player;
     player.play();
-  } catch (e) {
+  } catch {
     // Fallback to expo-speech if audio playback fails
     const text = ARABIC_TEXT[id];
     if (text) {
@@ -212,3 +220,13 @@ export const playCorrect       = () => playArabicById('reward-correct');
 export const playWrong         = () => playArabicById('reward-wrong');
 export const playLevelComplete = () => playArabicById('reward-level-complete');
 export const playUnlock        = () => playArabicById('reward-unlock');
+
+/** Check if Arabic TTS voice is available on this device */
+export async function checkArabicTTSAvailable(): Promise<boolean> {
+  try {
+    const voices = await Speech.getAvailableVoicesAsync();
+    return voices.some(v => v.language?.startsWith('ar'));
+  } catch {
+    return false;
+  }
+}

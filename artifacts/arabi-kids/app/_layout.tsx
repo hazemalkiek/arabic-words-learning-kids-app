@@ -57,10 +57,11 @@ export default function RootLayout() {
   }, [fontsLoaded, fontError]);
 
   useEffect(() => {
-    // Check Arabic TTS availability once on startup
-    checkArabicTTSAvailable().then((available) => {
-      if (!available) setShowTTSWarning(true);
-    });
+    if (typeof checkArabicTTSAvailable === 'function') {
+      checkArabicTTSAvailable().then((available) => {
+        if (!available) setShowTTSWarning(true);
+      }).catch(() => {});
+    }
   }, []);
 
   if (!fontsLoaded && !fontError) return null;

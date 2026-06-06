@@ -5,6 +5,10 @@ import {
   Nunito_800ExtraBold,
   useFonts,
 } from '@expo-google-fonts/nunito';
+import {
+  Cairo_400Regular,
+  Cairo_700Bold,
+} from '@expo-google-fonts/cairo';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect, useState } from 'react';
@@ -47,6 +51,8 @@ export default function RootLayout() {
     Nunito_600SemiBold,
     Nunito_700Bold,
     Nunito_800ExtraBold,
+    Cairo_400Regular,
+    Cairo_700Bold,
   });
   const [showTTSWarning, setShowTTSWarning] = useState(false);
 

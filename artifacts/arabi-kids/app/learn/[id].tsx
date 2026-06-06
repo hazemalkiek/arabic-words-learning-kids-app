@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Platform, Image,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring, FadeIn } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { useApp } from '@/context/AppContext';
@@ -14,7 +14,8 @@ import { TROPHIES } from '@/constants/trophies';
 import { STICKERS } from '@/constants/stickers';
 import { Difficulty, Theme } from '@/types';
 import { THEME_IMAGES } from '@/constants/images';
-import { playArabicById, speakEnglish, stopAudio, playLevelComplete, playUnlock } from '@/utils/audioPlayer';
+import WORD_IMAGES from '@/constants/wordImages';
+import { playArabicById, stopAudio, playLevelComplete, playUnlock } from '@/utils/audioPlayer';
 import { useResponsive } from '@/hooks/useResponsive';
 
 function StarDisplay({ stars }: { stars: number }) {
@@ -49,6 +50,7 @@ export default function LearnGameScreen() {
 
   const arabicOpacity = useSharedValue(0);
   const arabicY = useSharedValue(20);
+  const lastSpeakRef = useRef(0); // debounce speaker button
 
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
   const progressAnim = useSharedValue(0);
@@ -112,6 +114,9 @@ export default function LearnGameScreen() {
   };
 
   const handleSpeak = () => {
+    const now = Date.now();
+    if (now - lastSpeakRef.current < 600) return;
+    lastSpeakRef.current = now;
     playArabicById(words[currentIndex].id);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
@@ -199,7 +204,7 @@ export default function LearnGameScreen() {
     <View style={[styles.container, { paddingTop: topPad }, isTablet && { alignSelf: 'center', width: '100%', maxWidth: contentMaxWidth }]}>
       {/* Top bar */}
       <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => { Speech.stop(); router.back(); }} style={styles.closeBtn}>
+        <TouchableOpacity onPress={() => { stopAudio(); router.back(); }} style={styles.closeBtn}>
           <MaterialCommunityIcons name="close" size={26} color="#8A7E74" />
         </TouchableOpacity>
         <View style={styles.progressTrack}>
@@ -211,10 +216,10 @@ export default function LearnGameScreen() {
       {/* Word Card */}
       <View style={styles.cardContainer}>
         <Animated.View style={[styles.wordCard, cardStyle]}>
-          {/* Illustration / Photo */}
-          {currentWord.photoUrl ? (
+          {/* Illustration / Photo — prefer local bundled image, fall back to icon */}
+          {WORD_IMAGES[currentWord.id] ? (
             <Image
-              source={{ uri: currentWord.photoUrl }}
+              source={WORD_IMAGES[currentWord.id]}
               style={styles.wordPhoto}
               resizeMode="cover"
             />
@@ -269,11 +274,17 @@ export default function LearnGameScreen() {
         </Animated.View>
       </View>
 
-      {/* Next Button */}
+      {/* Next Button — locked until Arabic is revealed */}
       <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.nextBtn} onPress={handleNext}>
-          <Text style={styles.nextLabel}>{currentIndex === words.length - 1 ? 'Finish!' : 'Next'}</Text>
-          <MaterialCommunityIcons name="arrow-right" size={22} color="#FFF" />
+        <TouchableOpacity
+          style={[styles.nextBtn, !revealed && styles.nextBtnLocked]}
+          onPress={revealed ? handleNext : undefined}
+          activeOpacity={revealed ? 0.8 : 1}
+        >
+          <Text style={styles.nextLabel}>
+            {!revealed ? 'Show Arabic first ↑' : currentIndex === words.length - 1 ? 'Finish!' : 'Next'}
+          </Text>
+          {revealed && <MaterialCommunityIcons name="arrow-right" size={22} color="#FFF" />}
         </TouchableOpacity>
       </View>
     </View>
@@ -297,7 +308,7 @@ const styles = StyleSheet.create({
   iconBadge: { position: 'absolute', bottom: 8, right: 8, backgroundColor: '#FFF', borderRadius: 16, padding: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.12, shadowRadius: 4, elevation: 3 },
   englishWord: { fontFamily: 'Nunito_700Bold', fontSize: 28, color: '#1A1A2E', textAlign: 'center' },
   divider: { width: 60, height: 2, backgroundColor: '#F0E8DC', borderRadius: 1, marginVertical: 16 },
-  arabicWord: { fontFamily: 'Nunito_800ExtraBold', fontSize: 42, color: '#FF6B35', textAlign: 'center', writingDirection: 'rtl' },
+  arabicWord: { fontFamily: 'Cairo_700Bold', fontSize: 44, color: '#FF6B35', textAlign: 'center', writingDirection: 'rtl' },
   translitText: { fontFamily: 'Nunito_400Regular', fontSize: 18, color: '#8A7E74', marginTop: 6, fontStyle: 'italic' },
   revealBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8, paddingVertical: 14, paddingHorizontal: 24, backgroundColor: '#E8FFFE', borderRadius: 20, borderWidth: 2, borderColor: '#4ECDC4' },
   revealBtnText: { fontFamily: 'Nunito_700Bold', fontSize: 18, color: '#4ECDC4' },
@@ -306,9 +317,10 @@ const styles = StyleSheet.create({
   speakerLabel: { fontFamily: 'Nunito_600SemiBold', fontSize: 15, color: '#FF6B35' },
   bottomBar: { paddingHorizontal: 24, paddingBottom: 40, paddingTop: 16 },
   nextBtn: { backgroundColor: '#FF6B35', borderRadius: 24, paddingVertical: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, shadowColor: '#FF6B35', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 6 },
+  nextBtnLocked: { backgroundColor: '#D0C8C0', shadowOpacity: 0, elevation: 0 },
   nextLabel: { fontFamily: 'Nunito_800ExtraBold', fontSize: 20, color: '#FFFFFF' },
   completedContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 },
-  completedTitle: { fontFamily: 'Nunito_800ExtraBold', fontSize: 48, color: '#FF6B35', marginTop: 16, writingDirection: 'rtl' },
+  completedTitle: { fontFamily: 'Cairo_700Bold', fontSize: 48, color: '#FF6B35', marginTop: 16, writingDirection: 'rtl' },
   completedSub: { fontFamily: 'Nunito_700Bold', fontSize: 22, color: '#1A1A2E', marginBottom: 20 },
   newTrophySection: { marginTop: 20, alignItems: 'center' },
   newTrophyLabel: { fontFamily: 'Nunito_700Bold', fontSize: 16, color: '#FFD700', marginBottom: 8 },

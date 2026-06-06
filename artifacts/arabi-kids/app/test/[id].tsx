@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Platform, Image,
 } from 'react-native';
@@ -14,12 +14,14 @@ import { TROPHIES } from '@/constants/trophies';
 import { STICKERS } from '@/constants/stickers';
 import { Difficulty, Theme, Word } from '@/types';
 import { THEME_IMAGES } from '@/constants/images';
+import WORD_IMAGES from '@/constants/wordImages';
 import { playArabicById, speakEnglish, stopAudio, playCorrect, playWrong, playLevelComplete, playUnlock } from '@/utils/audioPlayer';
 import { useResponsive } from '@/hooks/useResponsive';
 
 function OptionButton({ word, onPress, state }: { word: Word; onPress: () => void; state: 'idle' | 'correct' | 'wrong' | 'reveal' }) {
   const scale = useSharedValue(1);
   const shakeX = useSharedValue(0);
+  const lastSpeakRef = useRef(0);
 
   useEffect(() => {
     if (state === 'wrong') {
@@ -41,12 +43,16 @@ function OptionButton({ word, onPress, state }: { word: Word; onPress: () => voi
   }));
 
   const bg = state === 'correct' ? '#6BCB77' : state === 'wrong' ? '#FF6B6B' : state === 'reveal' ? '#FFD700' : '#FFFFFF';
-  const textColor = state !== 'idle' ? '#FFFFFF' : '#1A1A2E';
-
-  const speakOption = () => { playArabicById(word.id); };
 
   const speakerBg = state === 'correct' ? '#5BB566' : state === 'wrong' ? '#E55555' : state === 'reveal' ? '#E6C000' : '#F3ECFF';
   const speakerColor = state !== 'idle' ? '#FFFFFF' : '#9B5DE5';
+
+  const speakOption = () => {
+    const now = Date.now();
+    if (now - lastSpeakRef.current < 600) return;
+    lastSpeakRef.current = now;
+    playArabicById(word.id);
+  };
 
   return (
     <Animated.View style={[animStyle, styles.optionRow]}>
@@ -96,9 +102,14 @@ export default function TestGameScreen() {
 
   const progressAnim = useSharedValue(0);
   const cardScale = useSharedValue(1);
+  const lastSpeakRef = useRef(0);
+  const autoPlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    return () => { stopAudio(); };
+    return () => {
+      stopAudio();
+      if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -116,9 +127,11 @@ export default function TestGameScreen() {
     setWrongMsg(null);
     progressAnim.value = withTiming((index + 1) / words.length, { duration: 400 });
     cardScale.value = withSpring(1, { damping: 14 });
-    setTimeout(() => {
+    // Clear any pending auto-play from the previous question, then schedule new one
+    if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
+    autoPlayTimerRef.current = setTimeout(() => {
       speakEnglish(word.english);
-    }, 300);
+    }, 500);
   }
 
   const WRONG_ENCOURAGEMENTS = [
@@ -279,9 +292,9 @@ export default function TestGameScreen() {
 
       {/* Word Display */}
       <View style={styles.wordDisplay}>
-        {currentWord.photoUrl ? (
+        {WORD_IMAGES[currentWord.id] ? (
           <Image
-            source={{ uri: currentWord.photoUrl }}
+            source={WORD_IMAGES[currentWord.id]}
             style={styles.wordPhoto}
             resizeMode="cover"
           />
@@ -309,10 +322,15 @@ export default function TestGameScreen() {
         <View style={styles.hearRow}>
           <TouchableOpacity
             style={styles.hearBtn}
-            onPress={() => speakEnglish(currentWord.english)}
+            onPress={() => {
+              const now = Date.now();
+              if (now - lastSpeakRef.current < 600) return;
+              lastSpeakRef.current = now;
+              speakEnglish(currentWord.english);
+            }}
           >
-            <MaterialCommunityIcons name="volume-high" size={20} color="#9B5DE5" />
-            <Text style={styles.hearLabel}>Hear it</Text>
+            <MaterialCommunityIcons name="volume-high" size={24} color="#9B5DE5" />
+            <Text style={styles.hearLabel}>Hear it again</Text>
           </TouchableOpacity>
         </View>
         <Text style={styles.questionLabel}>Which Arabic word matches?</Text>
@@ -360,13 +378,13 @@ const styles = StyleSheet.create({
   iconBadge: { position: 'absolute', bottom: 6, right: 6, backgroundColor: '#FFF', borderRadius: 14, padding: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.12, shadowRadius: 4, elevation: 3 },
   wordEnglish: { fontFamily: 'Nunito_800ExtraBold', fontSize: 30, color: '#1A1A2E', textAlign: 'center' },
   hearRow: { flexDirection: 'row', marginTop: 8, marginBottom: 8 },
-  hearBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#F3ECFF', borderRadius: 14, paddingVertical: 8, paddingHorizontal: 16 },
-  hearLabel: { fontFamily: 'Nunito_600SemiBold', fontSize: 14, color: '#9B5DE5' },
+  hearBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#EDE0FF', borderRadius: 16, paddingVertical: 10, paddingHorizontal: 20, borderWidth: 1.5, borderColor: '#9B5DE5' },
+  hearLabel: { fontFamily: 'Nunito_700Bold', fontSize: 15, color: '#9B5DE5' },
   questionLabel: { fontFamily: 'Nunito_600SemiBold', fontSize: 15, color: '#8A7E74' },
   optionsGrid: { paddingHorizontal: 12, gap: 10, flex: 1 },
   optionRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   optionBtn: { flex: 1, borderRadius: 20, padding: 14, borderWidth: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  optionArabic: { fontFamily: 'Nunito_800ExtraBold', fontSize: 24, writingDirection: 'rtl', textAlign: 'center', flex: 1 },
+  optionArabic: { fontFamily: 'Cairo_700Bold', fontSize: 24, writingDirection: 'rtl', textAlign: 'center', flex: 1 },
   optionTranslit: { fontFamily: 'Nunito_400Regular', fontSize: 13, fontStyle: 'italic', minWidth: 60, textAlign: 'center' },
   optionIcon: { marginLeft: 6 },
   optionSpeakerBtn: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.10, shadowRadius: 4, elevation: 3 },
@@ -385,7 +403,7 @@ const styles = StyleSheet.create({
   homeBtnText: { fontFamily: 'Nunito_700Bold', fontSize: 17, color: '#FFF' },
   wrongMsgBox: { marginHorizontal: 16, marginTop: 8, backgroundColor: '#FFF0E8', borderRadius: 16, padding: 14, borderLeftWidth: 4, borderLeftColor: '#FF6B6B' },
   wrongEnc: { fontFamily: 'Nunito_700Bold', fontSize: 14, color: '#FF6B35', marginBottom: 4 },
-  wrongHint: { fontFamily: 'Nunito_600SemiBold', fontSize: 15, color: '#1A1A2E', writingDirection: 'rtl' },
+  wrongHint: { fontFamily: 'Cairo_400Regular', fontSize: 16, color: '#1A1A2E', writingDirection: 'rtl' },
   errorText: { fontFamily: 'Nunito_600SemiBold', fontSize: 16, color: '#8A7E74', marginBottom: 16 },
   backBtnFull: { backgroundColor: '#9B5DE5', borderRadius: 16, paddingVertical: 12, paddingHorizontal: 24 },
   backBtnText: { fontFamily: 'Nunito_700Bold', fontSize: 16, color: '#FFF' },

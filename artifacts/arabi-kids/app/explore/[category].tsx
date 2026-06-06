@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, FlatList, Platform, Modal, Image,
 } from 'react-native';
@@ -12,6 +12,7 @@ import { THEMES, Theme } from '@/types';
 import { WORDS } from '@/constants/words';
 import type { Word } from '@/types';
 import { THEME_IMAGES } from '@/constants/images';
+import WORD_IMAGES from '@/constants/wordImages';
 import { useResponsive } from '@/hooks/useResponsive';
 
 export default function ExploreCategoryScreen() {
@@ -20,6 +21,7 @@ export default function ExploreCategoryScreen() {
   const insets = useSafeAreaInsets();
   const { markWordSeen } = useApp();
   const [selectedWord, setSelectedWord] = useState<Word | null>(null);
+  const lastSpeakRef = useRef(0);
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
   const { hPad, numCols } = useResponsive();
   const cols = numCols(3, 4, 5);
@@ -37,6 +39,14 @@ export default function ExploreCategoryScreen() {
   const handleClose = () => {
     stopAudio();
     setSelectedWord(null);
+  };
+
+  const handleSpeak = (word: Word) => {
+    const now = Date.now();
+    if (now - lastSpeakRef.current < 600) return;
+    lastSpeakRef.current = now;
+    playArabicById(word.id);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
   if (!theme) return null;
@@ -72,8 +82,8 @@ export default function ExploreCategoryScreen() {
               <View style={[styles.numberCircle, { backgroundColor: word.color + '18' }]}>
                 <Text style={[styles.numeralText, { color: word.color }]}>{word.icon}</Text>
               </View>
-            ) : word.photoUrl ? (
-              <Image source={{ uri: word.photoUrl }} style={styles.cardImg} resizeMode="cover" />
+            ) : WORD_IMAGES[word.id] ? (
+              <Image source={WORD_IMAGES[word.id]} style={styles.cardImg} resizeMode="cover" />
             ) : (
               <View style={styles.cardImgWrap}>
                 <Image source={THEME_IMAGES[word.theme]} style={styles.cardImg} resizeMode="contain" />
@@ -92,8 +102,8 @@ export default function ExploreCategoryScreen() {
       <Modal visible={!!selectedWord} transparent animationType="fade" onRequestClose={handleClose}>
         <TouchableOpacity style={styles.modalOverlay} onPress={handleClose} activeOpacity={1}>
           <View style={styles.modalCard}>
-            {selectedWord?.photoUrl ? (
-              <Image source={{ uri: selectedWord.photoUrl }} style={styles.modalPhoto} resizeMode="cover" />
+            {WORD_IMAGES[selectedWord?.id ?? ''] ? (
+              <Image source={WORD_IMAGES[selectedWord!.id]} style={styles.modalPhoto} resizeMode="cover" />
             ) : (
               <View style={[styles.modalIconCircle, { backgroundColor: (selectedWord?.color ?? '#FF6B35') + '22' }]}>
                 {selectedWord?.theme === 'colors' ? (
@@ -115,10 +125,7 @@ export default function ExploreCategoryScreen() {
             <Text style={styles.modalTranslit}>{selectedWord?.transliteration}</Text>
             <TouchableOpacity
               style={[styles.speakerBtn, { backgroundColor: (selectedWord?.color ?? '#FF6B35') + '22' }]}
-              onPress={() => {
-                if (selectedWord) playArabicById(selectedWord.id);
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              }}
+              onPress={() => selectedWord && handleSpeak(selectedWord)}
             >
               <MaterialCommunityIcons name="volume-high" size={24} color={selectedWord?.color} />
               <Text style={[styles.speakerLabel, { color: selectedWord?.color }]}>Hear in Arabic</Text>
@@ -139,7 +146,7 @@ const styles = StyleSheet.create({
   backBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   headerContent: { alignItems: 'center', gap: 2 },
   title: { fontFamily: 'Nunito_800ExtraBold', fontSize: 22, color: '#FFFFFF' },
-  titleArabic: { fontFamily: 'Nunito_600SemiBold', fontSize: 14, color: 'rgba(255,255,255,0.85)', writingDirection: 'rtl' },
+  titleArabic: { fontFamily: 'Cairo_700Bold', fontSize: 16, color: 'rgba(255,255,255,0.9)', writingDirection: 'rtl' },
   grid: { padding: 12, gap: 10, paddingBottom: 40 },
   wordCard: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: 18, padding: 12, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 6, elevation: 2, minHeight: 110 },
   colorCircle: { width: 40, height: 40, borderRadius: 20 },
@@ -151,7 +158,7 @@ const styles = StyleSheet.create({
   modalPhoto: { width: 150, height: 150, borderRadius: 24, marginBottom: 16 },
   cardIconBadge: { position: 'absolute', bottom: -2, right: -2, backgroundColor: '#FFF', borderRadius: 8, padding: 2 },
   wordEnglish: { fontFamily: 'Nunito_600SemiBold', fontSize: 12, color: '#1A1A2E', marginTop: 6, textAlign: 'center' },
-  wordArabic: { fontFamily: 'Nunito_700Bold', fontSize: 16, marginTop: 2, textAlign: 'center', writingDirection: 'rtl' },
+  wordArabic: { fontFamily: 'Cairo_700Bold', fontSize: 16, marginTop: 2, textAlign: 'center', writingDirection: 'rtl' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', alignItems: 'center', justifyContent: 'center' },
   modalCard: { backgroundColor: '#FFFFFF', borderRadius: 32, padding: 32, alignItems: 'center', width: '80%', shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.2, shadowRadius: 20, elevation: 12 },
   modalIconCircle: { width: 140, height: 140, borderRadius: 70, alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
@@ -159,7 +166,7 @@ const styles = StyleSheet.create({
   modalImg: { width: 110, height: 110, borderRadius: 12 },
   modalIconBadge: { position: 'absolute', bottom: 6, right: 6, backgroundColor: '#FFF', borderRadius: 16, padding: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.12, shadowRadius: 4, elevation: 3 },
   modalEnglish: { fontFamily: 'Nunito_700Bold', fontSize: 24, color: '#1A1A2E', textAlign: 'center' },
-  modalArabic: { fontFamily: 'Nunito_800ExtraBold', fontSize: 40, textAlign: 'center', writingDirection: 'rtl', marginTop: 8 },
+  modalArabic: { fontFamily: 'Cairo_700Bold', fontSize: 42, textAlign: 'center', writingDirection: 'rtl', marginTop: 8 },
   modalTranslit: { fontFamily: 'Nunito_400Regular', fontSize: 16, color: '#8A7E74', fontStyle: 'italic', marginTop: 4 },
   speakerBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 20, paddingVertical: 12, paddingHorizontal: 24, borderRadius: 16 },
   speakerLabel: { fontFamily: 'Nunito_700Bold', fontSize: 16 },
